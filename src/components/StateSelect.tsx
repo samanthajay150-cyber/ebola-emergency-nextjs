@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { fetchStates, type CountryState } from "@/lib/countries"
 
 interface StateSelectProps {
@@ -62,7 +62,7 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
         <span>
           {selectedState ? selectedState.name : "Select state/region"}
         </span>
-        <ChevDown size={20} />
+        <ChevronDown size={20} />
       </button>
 
       {error && (
