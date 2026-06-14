@@ -2,28 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { CheckCircle2, ChevronRight, ChevronLeft, HelpCircle, User, MapPin, 
-         Stethoscope, AlertCircle, Activity, Shield } from "lucide-react"
+import Link from "next/link"
 
-const STEPS = [
-  { id: 1, title: "Eligibility", icon: HelpCircle },
-  { id: 2, title: "Personal Info", icon: User },
-  { id: 3, title: "Location", icon: MapPin },
-  { id: 4, title: "Medical Info", icon: Stethoscope },
-  { id: 5, title: "Review", icon: CheckCircle2 },
-]
-
-export default function ApplicationPage() {
+export default function ApplyPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submittedId, setSubmittedId] = useState("")
   const [formData, setFormData] = useState({
-    readyToProceed: false,
-    firstTimeApplicant: true,
+    readyToProceed: "",
+    firstTimeApplicant: "",
     heardAboutFunds: "",
     otherSource: "",
     occupation: "",
@@ -34,499 +20,513 @@ export default function ApplicationPage() {
     phoneNumber: "",
     country: "",
     state: "",
-    town: "",
-    medicalCondition: "",
-    hospitalName: "",
-    doctorName: "",
-    treatmentType: "",
-    estimatedCost: "",
-    additionalNotes: "",
+    town: ""
   })
+  const [submitted, setSubmitted] = useState(false)
+  const [applicationId, setApplicationId] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const updateFormData = (field: string, value: any) => {
+  const totalSteps = 4
+  const progress = (currentStep / totalSteps) * 100
+
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
+  const nextStep = (currentStep: number): number => {
+    if (currentStep === 1) return 2
+    if (currentStep === 2) return 3
+    if (currentStep === 3) return 4
+    return 4
+  }
+
+  const prevStep = (currentStep: number): number => {
+    if (currentStep === 4) return 3
+    if (currentStep === 3) return 2
+    if (currentStep === 2) return 1
+    return 1
+  }
+
   const handleSubmit = async () => {
-    setIsSubmitting(true)
+    setLoading(true)
     try {
       const response = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          readyToProceed: formData.readyToProceed === "yes",
+          firstTimeApplicant: formData.firstTimeApplicant === "yes"
+        })
       })
+      
       const data = await response.json()
       if (data.success) {
-        setSubmittedId(data.applicationId)
-        setCurrentStep(6)
+        setApplicationId(data.applicationId)
+        setSubmitted(true)
       }
     } catch (error) {
       console.error("Submission error:", error)
-      alert("Failed to submit application. Please try again.")
     } finally {
-      setIsSubmitting(false)
+      setLoading(false)
     }
   }
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <HelpCircle className="h-5 w-5 text-primary" />
-                Step 1: Eligibility Check
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-semibold mb-2 text-blue-900">Before we begin:</h3>
-                <ul className="space-y-2 text-sm text-blue-800">
-                  <li>• You must be affected by Ebola or be a family member of someone affected</li>
-                  <li>• Applications are processed within 48-72 hours</li>
-                  <li>• All information is kept confidential</li>
-                  <li>• Support is available in multiple languages</li>
-                </ul>
-              </div>
+  if (submitted) {
+    return (
+      <div className="min-h-screen" style={{ background: "#f5f5f5" }}>
+        <nav className="nav">
+          <div className="nav-content">
+            <Link href="/" className="nav-logo">
+              <span>Ebola Emergency Support</span>
+            </Link>
+          </div>
+        </nav>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="readyToProceed"
-                    checked={formData.readyToProceed}
-                    onChange={(e) => updateFormData("readyToProceed", e.target.checked)}
-                    className="w-5 h-5 rounded border-gray-300"
-                  />
-                  <label htmlFor="readyToProceed" className="font-medium">
-                    I am ready to proceed with this application
-                  </label>
+        <div className="container" style={{ padding: "60px 20px", textAlign: "center" }}>
+          <div className="card" style={{ maxWidth: "600px", margin: "0 auto" }}>
+            <div style={{ 
+              width: "80px", 
+              height: "80px", 
+              borderRadius: "50%", 
+              background: "#10b981",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "40px",
+              margin: "0 auto 24px"
+            }}>✓</div>
+            <h1 style={{ fontSize: "32px", marginBottom: "16px", fontWeight: 700 }}>
+              Application Submitted!
+            </h1>
+            <p style={{ color: "#6b7280", marginBottom: "24px" }}>
+              Your application has been received and is being reviewed.
+            </p>
+            <div className="card" style={{ background: "#f9fafb", marginBottom: "24px" }}>
+              <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Application ID</p>
+              <p style={{ fontSize: "24px", fontWeight: 700, color: "#0066cc" }}>{applicationId}</p>
+            </div>
+            <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "24px" }}>
+              Please save your Application ID. You will need it to check your application status.
+            </p>
+            <Link href="/" className="btn btn-primary">
+              Return Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen" style={{ background: "#f5f5f5" }}>
+      {/* Navigation */}
+      <nav className="nav">
+        <div className="nav-content">
+          <Link href="/" className="nav-logo">
+            <span>Ebola Emergency Support</span>
+          </Link>
+          <div className="nav-links">
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/apply" className="nav-link">Apply</Link>
+            <Link href="/admin" className="nav-link">Admin</Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Content */}
+      <div className="container" style={{ padding: "40px 20px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <h1 style={{ fontSize: "36px", marginBottom: "12px", fontWeight: 700 }}>
+              Application for Emergency Support
+            </h1>
+            <p style={{ color: "#6b7280", fontSize: "18px" }}>
+              Complete the form below to apply for financial assistance
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div style={{ marginBottom: "40px" }}>
+            <div className="progress-container">
+              {[1, 2, 3, 4].map((step) => (
+                <div key={step} className={`progress-step ${step <= currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}>
+                  <div className="progress-circle">{step}</div>
+                  <div className="progress-label">
+                    {step === 1 && "Getting Started"}
+                    {step === 2 && "Personal Info"}
+                    {step === 3 && "Location"}
+                    {step === 4 && "Review"}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ 
+              height: "4px", 
+              background: "#e5e7eb", 
+              borderRadius: "2px",
+              marginTop: "-40px",
+              position: "relative",
+              zIndex: 0
+            }}>
+              <div style={{
+                height: "100%",
+                width: `${progress}%`,
+                background: "linear-gradient(90deg, #0066cc 0%, #10b981 100%)",
+                borderRadius: "2px",
+                transition: "width 0.3s"
+              }} />
+            </div>
+          </div>
+
+          {/* Form Card */}
+          <div className="card">
+            {/* Step 1: Getting Started */}
+            {currentStep === 1 && (
+              <div className="fade-in">
+                <div className="card-header">
+                  <h2 className="card-title">Getting Started</h2>
+                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
+                    Tell us a bit about yourself and how you heard about us
+                  </p>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="font-medium">Is this your first time applying?</label>
-                  <div className="space-x-4">
-                    <label className="inline-flex items-center">
+                <div className="form-group">
+                  <label className="form-label">Are you ready to proceed with the application? *</label>
+                  <div className="radio-group">
+                    <label className={`radio-label ${formData.readyToProceed === "yes" ? 'selected' : ''}`}>
                       <input
                         type="radio"
-                        name="firstTimeApplicant"
-                        checked={formData.firstTimeApplicant === true}
-                        onChange={() => updateFormData("firstTimeApplicant", true)}
-                        className="w-4 h-4"
+                        name="readyToProceed"
+                        value="yes"
+                        checked={formData.readyToProceed === "yes"}
+                        onChange={(e) => handleInputChange("readyToProceed", e.target.value)}
+                        style={{ display: "none" }}
                       />
-                      <span className="ml-2">Yes</span>
+                      Yes
                     </label>
-                    <label className="inline-flex items-center">
+                    <label className={`radio-label ${formData.readyToProceed === "no" ? 'selected' : ''}`}>
                       <input
                         type="radio"
-                        name="firstTimeApplicant"
-                        checked={formData.firstTimeApplicant === false}
-                        onChange={() => updateFormData("firstTimeApplicant", false)}
-                        className="w-4 h-4"
+                        name="readyToProceed"
+                        value="no"
+                        checked={formData.readyToProceed === "no"}
+                        onChange={(e) => handleInputChange("readyToProceed", e.target.value)}
+                        style={{ display: "none" }}
                       />
-                      <span className="ml-2">No</span>
+                      No
                     </label>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="font-medium">How did you hear about us?</label>
-                  <select
-                    value={formData.heardAboutFunds}
-                    onChange={(e) => updateFormData("heardAboutFunds", e.target.value)}
-                    className="w-full p-3 border rounded-lg"
-                  >
-                    <option value="">Select option...</option>
-                    <option value="hospital">Hospital/Healthcare Provider</option>
-                    <option value="ngo">NGO/Charity Organization</option>
-                    <option value="government">Government Agency</option>
-                    <option value="community">Community Leader</option>
-                    <option value="social_media">Social Media</option>
-                    <option value="friend">Friend/Family</option>
-                    <option value="other">Other</option>
-                  </select>
-                  {formData.heardAboutFunds === "other" && (
-                    <Input
-                      placeholder="Please specify..."
-                      value={formData.otherSource}
-                      onChange={(e) => updateFormData("otherSource", e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
+                <div className="form-group">
+                  <label className="form-label">Is this your first time applying? *</label>
+                  <div className="radio-group">
+                    <label className={`radio-label ${formData.firstTimeApplicant === "yes" ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="firstTimeApplicant"
+                        value="yes"
+                        checked={formData.firstTimeApplicant === "yes"}
+                        onChange={(e) => handleInputChange("firstTimeApplicant", e.target.value)}
+                        style={{ display: "none" }}
+                      />
+                      Yes
+                    </label>
+                    <label className={`radio-label ${formData.firstTimeApplicant === "no" ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="firstTimeApplicant"
+                        value="no"
+                        checked={formData.firstTimeApplicant === "no"}
+                        onChange={(e) => handleInputChange("firstTimeApplicant", e.target.value)}
+                        style={{ display: "none" }}
+                      />
+                      No
+                    </label>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="font-medium">Your Occupation</label>
+                <div className="form-group">
+                  <label className="form-label">How did you hear about us? *</label>
                   <select
-                    value={formData.occupation}
-                    onChange={(e) => updateFormData("occupation", e.target.value)}
-                    className="w-full p-3 border rounded-lg"
+                    className="form-input"
+                    value={formData.heardAboutFunds}
+                    onChange={(e) => handleInputChange("heardAboutFunds", e.target.value)}
                   >
-                    <option value="">Select occupation...</option>
-                    <option value="healthcare">Healthcare Worker</option>
-                    <option value="teacher">Teacher/Educator</option>
+                    <option value="">Select an option</option>
+                    <option value="healthcare_worker">Healthcare Worker</option>
+                    <option value="community_leader">Community Leader</option>
+                    <option value="social_media">Social Media</option>
+                    <option value="radio">Radio</option>
+                    <option value="tv">Television</option>
+                    <option value="friend">Friend or Family</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {formData.heardAboutFunds === "other" && (
+                  <div className="form-group">
+                    <label className="form-label">Please specify *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.otherSource}
+                      onChange={(e) => handleInputChange("otherSource", e.target.value)}
+                      placeholder="How did you hear about us?"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 2: Personal Information */}
+            {currentStep === 2 && (
+              <div className="fade-in">
+                <div className="card-header">
+                  <h2 className="card-title">Personal Information</h2>
+                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
+                    Please provide your personal details
+                  </p>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Full Name *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Age *</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={formData.age}
+                    onChange={(e) => handleInputChange("age", e.target.value)}
+                    placeholder="Enter your age"
+                    min="1"
+                    max="120"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Occupation *</label>
+                  <select
+                    className="form-input"
+                    value={formData.occupation}
+                    onChange={(e) => handleInputChange("occupation", e.target.value)}
+                  >
+                    <option value="">Select your occupation</option>
+                    <option value="healthcare_worker">Healthcare Worker</option>
+                    <option value="teacher">Teacher</option>
                     <option value="farmer">Farmer</option>
-                    <option value="merchant">Merchant/Trader</option>
                     <option value="student">Student</option>
                     <option value="unemployed">Unemployed</option>
                     <option value="other">Other</option>
                   </select>
-                  {formData.occupation === "other" && (
-                    <Input
-                      placeholder="Please specify..."
+                </div>
+
+                {formData.occupation === "other" && (
+                  <div className="form-group">
+                    <label className="form-label">Please specify *</label>
+                    <input
+                      type="text"
+                      className="form-input"
                       value={formData.otherOccupation}
-                      onChange={(e) => updateFormData("otherOccupation", e.target.value)}
-                      className="mt-2"
+                      onChange={(e) => handleInputChange("otherOccupation", e.target.value)}
+                      placeholder="Your occupation"
                     />
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )
+                  </div>
+                )}
 
-      case 2:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
-                Step 2: Personal Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="font-medium">Full Name *</label>
-                  <Input
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e) => updateFormData("fullName", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="font-medium">Age *</label>
-                  <Input
-                    type="number"
-                    placeholder="Your age"
-                    value={formData.age}
-                    onChange={(e) => updateFormData("age", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="font-medium">Email Address</label>
-                  <Input
+                <div className="form-group">
+                  <label className="form-label">Email Address</label>
+                  <input
                     type="email"
-                    placeholder="your@email.com"
+                    className="form-input"
                     value={formData.email}
-                    onChange={(e) => updateFormData("email", e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    placeholder="your.email@example.com"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="font-medium">Phone Number *</label>
-                  <Input
+
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <input
                     type="tel"
-                    placeholder="+234 XXX XXX XXXX"
+                    className="form-input"
                     value={formData.phoneNumber}
-                    onChange={(e) => updateFormData("phoneNumber", e.target.value)}
+                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                    placeholder="+256 XXX XXX XXX"
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )
+            )}
 
-      case 3:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                Step 3: Location Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="font-medium">Country *</label>
-                  <select
-                    value={formData.country}
-                    onChange={(e) => updateFormData("country", e.target.value)}
-                    className="w-full p-3 border rounded-lg"
-                  >
-                    <option value="">Select country...</option>
-                    <option value="Nigeria">Nigeria</option>
-                    <option value="Ghana">Ghana</option>
-                    <option value="Liberia">Liberia</option>
-                    <option value="Sierra Leone">Sierra Leone</option>
-                    <option value="Guinea">Guinea</option>
-                    <option value="Democratic Republic of Congo">Democratic Republic of Congo</option>
-                    <option value="Uganda">Uganda</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="font-medium">State/Province *</label>
-                  <Input
-                    placeholder="Enter state or province"
-                    value={formData.state}
-                    onChange={(e) => updateFormData("state", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="font-medium">Town/City *</label>
-                <Input
-                  placeholder="Enter your town or city"
-                  value={formData.town}
-                  onChange={(e) => updateFormData("town", e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )
-
-      case 4:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Stethoscope className="h-5 w-5 text-primary" />
-                Step 4: Medical Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                  <p className="text-sm text-yellow-800">
-                    This information helps us process your application faster. All medical information is kept strictly confidential.
+            {/* Step 3: Location */}
+            {currentStep === 3 && (
+              <div className="fade-in">
+                <div className="card-header">
+                  <h2 className="card-title">Location Details</h2>
+                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
+                    Where are you located?
                   </p>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="font-medium">Medical Condition</label>
-                <Input
-                  placeholder="Describe your medical condition"
-                  value={formData.medicalCondition}
-                  onChange={(e) => updateFormData("medicalCondition", e.target.value)}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="font-medium">Hospital/Clinic Name</label>
-                  <Input
-                    placeholder="Hospital name"
-                    value={formData.hospitalName}
-                    onChange={(e) => updateFormData("hospitalName", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="font-medium">Doctor's Name</label>
-                  <Input
-                    placeholder="Attending doctor"
-                    value={formData.doctorName}
-                    onChange={(e) => updateFormData("doctorName", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="font-medium">Type of Treatment</label>
+                <div className="form-group">
+                  <label className="form-label">Country *</label>
                   <select
-                    value={formData.treatmentType}
-                    onChange={(e) => updateFormData("treatmentType", e.target.value)}
-                    className="w-full p-3 border rounded-lg"
+                    className="form-input"
+                    value={formData.country}
+                    onChange={(e) => handleInputChange("country", e.target.value)}
                   >
-                    <option value="">Select...</option>
-                    <option value="medication">Medication</option>
-                    <option value="hospitalization">Hospitalization</option>
-                    <option value="surgery">Surgery</option>
-                    <option value="ongoing">Ongoing Treatment</option>
+                    <option value="">Select your country</option>
+                    <option value="DRC">Democratic Republic of Congo</option>
+                    <option value="Uganda">Uganda</option>
+                    <option value="Guinea">Guinea</option>
+                    <option value="Sierra Leone">Sierra Leone</option>
+                    <option value="Liberia">Liberia</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="Ghana">Ghana</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="font-medium">Estimated Cost (USD)</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.estimatedCost}
-                    onChange={(e) => updateFormData("estimatedCost", e.target.value)}
+
+                <div className="form-group">
+                  <label className="form-label">State/Province *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.state}
+                    onChange={(e) => handleInputChange("state", e.target.value)}
+                    placeholder="Enter your state or province"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Town/City *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.town}
+                    onChange={(e) => handleInputChange("town", e.target.value)}
+                    placeholder="Enter your town or city"
                   />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <label className="font-medium">Additional Notes</label>
-                <textarea
-                  placeholder="Any additional information you'd like to share..."
-                  value={formData.additionalNotes}
-                  onChange={(e) => updateFormData("additionalNotes", e.target.value)}
-                  className="w-full p-3 border rounded-lg h-24"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )
-
-      case 5:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                Step 5: Review Your Application
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-green-800">
-                  Please review your information below before submitting. You can go back to make changes if needed.
-                </p>
-              </div>
-
-              {[
-                { title: "Eligibility", data: { ...formData } },
-                { title: "Personal Info", data: { fullName: formData.fullName, age: formData.age, email: formData.email, phone: formData.phoneNumber } },
-                { title: "Location", data: { country: formData.country, state: formData.state, town: formData.town } },
-                { title: "Medical Info", data: { medicalCondition: formData.medicalCondition, hospital: formData.hospitalName, treatment: formData.treatmentType } },
-              ].map((section, idx) => (
-                <div key={idx} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">{section.title}</h3>
-                    <Button variant="outline" size="sm" onClick={() => setCurrentStep(idx + 1)}>
-                      Edit
-                    </Button>
-                  </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    {Object.entries(section.data).map(([key, value]) => (
-                      value && <div key={key}><span className="font-medium">{key}:</span> {String(value)}</div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              <div className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  required
-                  className="w-5 h-5 rounded border-gray-300 mt-0.5"
-                />
-                <label htmlFor="terms" className="text-sm text-gray-600">
-                  I confirm that the information provided is accurate and complete. I understand that providing false information may result in disqualification.
-                </label>
-              </div>
-            </CardContent>
-          </Card>
-        )
-
-      case 6:
-        return (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <CheckCircle2 className="h-20 w-20 text-green-600 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold mb-4">Application Submitted!</h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Your application has been successfully submitted.
-              </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                <p className="text-sm text-blue-800 mb-2">Your Application ID:</p>
-                <p className="text-2xl font-mono font-bold text-blue-900">{submittedId}</p>
-              </div>
-              <p className="text-sm text-gray-600 mb-6">
-                Please save this ID. You can use it to check your application status at any time.
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button onClick={() => router.push("/check-status")}>
-                  Check Status
-                </Button>
-                <Button variant="outline" onClick={() => router.push("/")}>
-                  Return Home
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )
-
-      default:
-        return null
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Application for Ebola Emergency Support</h1>
-          <p className="text-gray-600">Complete the form below to apply for financial assistance</p>
-        </div>
-
-        {/* Progress Steps */}
-        {currentStep < 6 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              {STEPS.map((step, idx) => (
-                <div key={step.id} className="flex-1 flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    currentStep >= step.id 
-                      ? "bg-primary text-white" 
-                      : "bg-gray-200 text-gray-500"
-                  }`}>
-                    <step.icon className="h-6 w-6" />
-                  </div>
-                  <span className="text-xs mt-2 font-medium">{step.title}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {renderStep()}
-
-        {/* Navigation Buttons */}
-        {currentStep < 6 && (
-          <div className="flex justify-between mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentStep(prev => prev - 1)}
-              disabled={currentStep === 1}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              Previous
-            </Button>
-            
-            {currentStep < 5 ? (
-              <Button onClick={() => setCurrentStep(prev => prev + 1)}>
-                Next
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Application"}
-              </Button>
             )}
+
+            {/* Step 4: Review */}
+            {currentStep === 4 && (
+              <div className="fade-in">
+                <div className="card-header">
+                  <h2 className="card-title">Review Your Application</h2>
+                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
+                    Please verify all information before submitting
+                  </p>
+                </div>
+
+                <div className="card" style={{ background: "#f9fafb", marginBottom: "20px" }}>
+                  <h3 style={{ fontSize: "18px", marginBottom: "16px", fontWeight: 600 }}>Personal Information</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Full Name:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.fullName || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Age:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.age || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Email:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.email || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Phone:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.phoneNumber || "Not provided"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card" style={{ background: "#f9fafb", marginBottom: "20px" }}>
+                  <h3 style={{ fontSize: "18px", marginBottom: "16px", fontWeight: 600 }}>Location</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Country:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.country || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>State:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.state || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Town:</span>
+                      <p style={{ fontWeight: 600 }}>{formData.town || "Not provided"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ 
+                  background: "#fef3c7", 
+                  border: "1px solid #fbbf24", 
+                  borderRadius: "6px",
+                  padding: "16px",
+                  marginBottom: "20px"
+                }}>
+                  <p style={{ marginBottom: "8px", fontWeight: 600 }}>⚠️ Important Notice</p>
+                  <p style={{ fontSize: "14px", color: "#92400e" }}>
+                    By submitting this application, you confirm that all information provided is accurate 
+                    and complete. False information may result in disqualification.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between",
+              marginTop: "32px",
+              paddingTop: "24px",
+              borderTop: "1px solid #e5e7eb"
+            }}>
+              {currentStep > 1 && (
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setCurrentStep(prevStep(currentStep))}
+                >
+                  Previous
+                </button>
+              )}
+              
+              {currentStep < 4 ? (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setCurrentStep(nextStep(currentStep))}
+                  style={{ marginLeft: "auto" }}
+                >
+                  Next Step
+                </button>
+              ) : (
+                <button
+                  className="btn btn-success"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  style={{ marginLeft: "auto" }}
+                >
+                  {loading ? "Submitting..." : "Submit Application"}
+                </button>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

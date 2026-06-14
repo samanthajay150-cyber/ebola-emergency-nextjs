@@ -1,195 +1,237 @@
-import Link from "next/link"
-import { Heart, Activity, Users, Shield, Globe, Clock, CheckCircle2, ArrowRight } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { Heart, Activity, Users, Shield, Globe, Clock } from "lucide-react"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Heart className="h-8 w-8 text-red-600" />
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                EBOLA EMERGENCY SUPPORT
-              </span>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <Link href="/apply" className="text-gray-600 hover:text-primary transition-colors">
-                Apply Now
-              </Link>
-              <Link href="/check-status" className="text-gray-600 hover:text-primary transition-colors">
-                Check Status
-              </Link>
-              <Link href="/admin/login" className="text-gray-600 hover:text-primary transition-colors">
-                Admin
-              </Link>
-            </nav>
+    <div className="min-h-screen" style={{ background: "#f5f5f5" }}>
+      {/* Navigation */}
+      <nav className="nav">
+        <div className="nav-content">
+          <Link href="/" className="nav-logo">
+            <Heart style={{ color: "#10b981" }} size={28} />
+            <span>Ebola Emergency Support</span>
+          </Link>
+          <div className="nav-links">
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/apply" className="nav-link">Apply</Link>
+            <Link href="/admin" className="nav-link">Admin</Link>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-green-900/80 z-10" />
-        <div className="relative h-[600px] bg-cover bg-center" style={{
-          backgroundImage: `url('/images/hero-healthcare-workers.jpg')`,
-        }}>
-          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-            <div className="text-white max-w-2xl">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                Emergency Ebola Treatment & Financial Assistance
-              </h1>
-              <p className="text-xl mb-8 text-gray-200">
-                We provide critical financial support for individuals and families affected by Ebola. 
-                Fast, compassionate, and confidential assistance when you need it most.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/apply"
-                  className="inline-flex items-center px-8 py-4 bg-white text-blue-900 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  Apply for Assistance
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-                <Link
-                  href="/check-status"
-                  className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10 transition-all"
-                >
-                  Check Application Status
-                </Link>
-              </div>
+      <div className="hero">
+        <div className="hero-content">
+          <h1>Emergency Financial Support for Ebola Treatment</h1>
+          <p>
+            We provide financial assistance to individuals and families affected by Ebola.
+            Our platform ensures quick processing and transparent application review.
+          </p>
+          <Link href="/apply" className="btn btn-primary" style={{ fontSize: "18px", padding: "16px 32px" }}>
+            Start Your Application
+          </Link>
+          <div style={{ marginTop: "40px" }}>
+            <img 
+              src="/images/hero-healthcare-workers.jpg"
+              alt="Healthcare workers providing Ebola treatment"
+              className="hero-image"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="container" style={{ padding: "60px 20px" }}>
+        <h2 style={{ textAlign: "center", fontSize: "36px", marginBottom: "40px", fontWeight: 700 }}>
+          Our Services
+        </h2>
+        <div className="grid grid-cols-3">
+          <div className="card">
+            <div style={{ marginBottom: "16px" }}>
+              <Activity size={48} style={{ color: "#0066cc" }} />
             </div>
+            <h3 style={{ fontSize: "20px", marginBottom: "12px", fontWeight: 600 }}>
+              Treatment Support
+            </h3>
+            <p style={{ color: "#6b7280" }}>
+              Direct financial assistance for medical treatment and hospitalization costs.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              { icon: Users, label: "Families Supported", value: "15,000+" },
-              { icon: Globe, label: "Countries Reached", value: "12" },
-              { icon: Heart, label: "Financial Aid Distributed", value: "$2.5M+" },
-              { icon: Clock, label: "Average Response Time", value: "48 hours" },
-            ].map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <stat.icon className="h-12 w-12 mx-auto text-primary mb-4" />
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
-              </div>
-            ))}
+          <div className="card">
+            <div style={{ marginBottom: "16px" }}>
+              <Users size={48} style={{ color: "#10b981" }} />
+            </div>
+            <h3 style={{ fontSize: "20px", marginBottom: "12px", fontWeight: 600 }}>
+              Family Support
+            </h3>
+            <p style={{ color: "#6b7280" }}>
+              Support for families affected by Ebola, including childcare and basic needs.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">How We Can Help</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Activity,
-                title: "Treatment Support",
-                desc: "Financial assistance for Ebola treatment, medication, and hospital care.",
-              },
-              {
-                icon: Users,
-                title: "Family Support",
-                desc: "Support for families affected by Ebola, including basic needs and education.",
-              },
-              {
-                icon: Shield,
-                title: "Prevention Education",
-                desc: "Community education and awareness programs to prevent outbreaks.",
-              },
-            ].map((feature, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                <feature.icon className="h-12 w-12 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.desc}</p>
-              </div>
-            ))}
+          <div className="card">
+            <div style={{ marginBottom: "16px" }}>
+              <Shield size={48} style={{ color: "#14b8a6" }} />
+            </div>
+            <h3 style={{ fontSize: "20px", marginBottom: "12px", fontWeight: 600 }}>
+              Emergency Aid
+            </h3>
+            <p style={{ color: "#6b7280" }}>
+              Rapid response emergency funding for urgent medical and living expenses.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* How It Works */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">How to Apply</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              { step: "1", title: "Fill Application", desc: "Complete our simple online form" },
-              { step: "2", title: "Submit Documents", desc: "Provide required documentation" },
-              { step: "3", title: "Review Process", desc: "Our team reviews your application" },
-              { step: "4", title: "Receive Support", desc: "Get financial assistance quickly" },
-            ].map((item, idx) => (
-              <div key={idx} className="text-center">
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
-                  {item.step}
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
-              </div>
-            ))}
+      <div style={{ background: "white", padding: "60px 20px" }}>
+        <div className="container">
+          <h2 style={{ textAlign: "center", fontSize: "36px", marginBottom: "40px", fontWeight: 700 }}>
+            How It Works
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                background: "#0066cc", 
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
+                fontWeight: 700,
+                margin: "0 auto 16px"
+              }}>1</div>
+              <h3 style={{ marginBottom: "8px", fontWeight: 600 }}>Apply Online</h3>
+              <p style={{ color: "#6b7280", fontSize: "14px" }}>Complete our simple 4-step application form</p>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                background: "#0066cc", 
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
+                fontWeight: 700,
+                margin: "0 auto 16px"
+              }}>2</div>
+              <h3 style={{ marginBottom: "8px", fontWeight: 600 }}>Review</h3>
+              <p style={{ color: "#6b7280", fontSize: "14px" }}>Our team reviews within 24-48 hours</p>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                background: "#0066cc", 
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
+                fontWeight: 700,
+                margin: "0 auto 16px"
+              }}>3</div>
+              <h3 style={{ marginBottom: "8px", fontWeight: 600 }}>Approval</h3>
+              <p style={{ color: "#6b7280", fontSize: "14px" }}>Receive notification of approval status</p>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                background: "#10b981", 
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
+                fontWeight: 700,
+                margin: "0 auto 16px"
+              }}>4</div>
+              <h3 style={{ marginBottom: "8px", fontWeight: 600 }}>Disbursement</h3>
+              <p style={{ color: "#6b7280", fontSize: "14px" }}>Funds transferred within 7 business days</p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-green-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Need Emergency Assistance?</h2>
-          <p className="text-xl mb-8">
-            Don't wait. Apply now and receive the support you need within 48 hours.
+      {/* Stats */}
+      <div className="container" style={{ padding: "60px 20px" }}>
+        <h2 style={{ textAlign: "center", fontSize: "36px", marginBottom: "40px", fontWeight: 700 }}>
+          Our Impact
+        </h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-value">5,000+</div>
+            <div className="stat-label">Applications Processed</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">92%</div>
+            <div className="stat-label">Approval Rate</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">$2.5M</div>
+            <div className="stat-label">Distributed in Aid</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">24hrs</div>
+            <div className="stat-label">Average Response Time</div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div style={{ background: "#0066cc", padding: "60px 20px", textAlign: "center", color: "white" }}>
+        <div className="container">
+          <h2 style={{ fontSize: "36px", marginBottom: "16px", fontWeight: 700 }}>
+            Need Emergency Assistance?
+          </h2>
+          <p style={{ fontSize: "18px", marginBottom: "30px", opacity: 0.95 }}>
+            Apply now and receive a response within 24-48 hours
           </p>
-          <Link
-            href="/apply"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-900 rounded-lg font-semibold hover:bg-blue-50 transition-all shadow-lg"
-          >
-            Start Your Application
-            <ArrowRight className="ml-2 h-5 w-5" />
+          <Link href="/apply" className="btn btn-success" style={{ fontSize: "18px", padding: "16px 32px" }}>
+            Start Application
           </Link>
         </div>
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <Heart className="h-8 w-8 text-red-600" />
-                <span className="text-xl font-bold">EBOLA EMERGENCY SUPPORT</span>
-              </div>
-              <p className="text-gray-400">
-                Providing emergency financial assistance to Ebola victims and their families since 2020.
-              </p>
+      <footer className="footer">
+        <div className="footer-content">
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+              <Heart style={{ color: "#10b981" }} size={24} />
+              <span style={{ fontSize: "18px", fontWeight: 700 }}>Ebola Emergency Support</span>
             </div>
-            <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/apply" className="hover:text-white">Apply for Assistance</Link></li>
-                <li><Link href="/check-status" className="hover:text-white">Check Status</Link></li>
-                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Contact Us</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>Email: support@ebolaemergency.org</li>
-                <li>Phone: +1-800-EBOLA-AID</li>
-                <li>Hours: 24/7 Emergency Line</li>
-              </ul>
-            </div>
+            <p style={{ opacity: 0.8, fontSize: "14px" }}>
+              Providing emergency financial assistance to those affected by Ebola.
+            </p>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2026 Ebola Emergency Support. All rights reserved.</p>
+          <div>
+            <h4 style={{ marginBottom: "16px", fontWeight: 600 }}>Quick Links</h4>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              <li style={{ marginBottom: "8px" }}><Link href="/" style={{ opacity: 0.8 }}>Home</Link></li>
+              <li style={{ marginBottom: "8px" }}><Link href="/apply" style={{ opacity: 0.8 }}>Apply</Link></li>
+              <li style={{ marginBottom: "8px" }}><Link href="/admin" style={{ opacity: 0.8 }}>Admin Portal</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ marginBottom: "16px", fontWeight: 600 }}>Contact</h4>
+            <p style={{ opacity: 0.8, fontSize: "14px", marginBottom: "8px" }}>Email: support@ebola-emergency.org</p>
+            <p style={{ opacity: 0.8, fontSize: "14px", marginBottom: "8px" }}>Phone: +1 (800) 123-4567</p>
+            <p style={{ opacity: 0.8, fontSize: "14px" }}>Available Mon-Fri, 9AM-5PM (UTC)</p>
           </div>
         </div>
       </footer>
