@@ -12,9 +12,7 @@ export async function POST(request: NextRequest) {
       INSERT INTO applications (
         application_id, ready_to_proceed, first_time_applicant,
         heard_about_funds, other_source, occupation, other_occupation,
-        full_name, age, email, phone_number, country, state, town,
-        medical_condition, hospital_name, doctor_name, treatment_type,
-        estimated_cost, additional_notes
+        full_name, age, email, phone_number, country, state, town
       ) VALUES (
         ${applicationId},
         ${body.readyToProceed || false},
@@ -29,13 +27,7 @@ export async function POST(request: NextRequest) {
         ${body.phoneNumber || null},
         ${body.country || ""},
         ${body.state || ""},
-        ${body.town || ""},
-        ${body.medicalCondition || null},
-        ${body.hospitalName || null},
-        ${body.doctorName || null},
-        ${body.treatmentType || null},
-        ${body.estimatedCost || null},
-        ${body.additionalNotes || null}
+        ${body.town || ""}
       )
     `
     
@@ -44,6 +36,24 @@ export async function POST(request: NextRequest) {
     console.error("Application submission error:", error)
     return NextResponse.json(
       { success: false, error: "Failed to submit application" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET() {
+  try {
+    const applications = await sql`
+      SELECT id, application_id, full_name, status, created_at 
+      FROM applications 
+      ORDER BY created_at DESC 
+      LIMIT 10
+    `
+    return NextResponse.json({ applications })
+  } catch (error) {
+    console.error("Error fetching applications:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch applications" },
       { status: 500 }
     )
   }
