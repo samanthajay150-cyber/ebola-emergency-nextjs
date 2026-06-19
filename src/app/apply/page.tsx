@@ -1,13 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function ApplyPage() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState({
+  const [step, setStep] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
+  const [form, setForm] = useState({
     readyToProceed: "",
     firstTimeApplicant: "",
     heardAboutFunds: "",
@@ -20,514 +22,261 @@ export default function ApplyPage() {
     phoneNumber: "",
     country: "",
     state: "",
-    town: ""
+    town: "",
   })
-  const [submitted, setSubmitted] = useState(false)
-  const [applicationId, setApplicationId] = useState("")
-  const [loading, setLoading] = useState(false)
 
-  const totalSteps = 4
-  const progress = (currentStep / totalSteps) * 100
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }))
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const steps = ["Eligibility", "Background", "Personal", "Review"]
+
+  const next = () => {
+    setError("")
+    if (step === 1) {
+      if (!form.readyToProceed || !form.firstTimeApplicant || !form.heardAboutFunds) {
+        setError("Please answer all eligibility questions.")
+        return
+      }
+      if (form.heardAboutFunds === "other" && !form.otherSource) {
+        setError("Please specify how you heard about us.")
+        return
+      }
+    }
+    if (step === 2 && (!form.occupation || (form.occupation === "other" && !form.otherOccupation))) {
+      setError("Please select your occupation.")
+      return
+    }
+    if (step === 3) {
+      if (!form.fullName || !form.age || !form.country || !form.state || !form.town) {
+        setError("Please fill in all required personal details.")
+        return
+      }
+    }
+    setStep((s) => Math.min(4, s + 1))
   }
+  const back = () => { setError(""); setStep((s) => Math.max(1, s - 1)) }
 
-  const nextStep = (currentStep: number): number => {
-    if (currentStep === 1) return 2
-    if (currentStep === 2) return 3
-    if (currentStep === 3) return 4
-    return 4
-  }
-
-  const prevStep = (currentStep: number): number => {
-    if (currentStep === 4) return 3
-    if (currentStep === 3) return 2
-    if (currentStep === 2) return 1
-    return 1
-  }
-
-  const handleSubmit = async () => {
-    setLoading(true)
+  const submit = async () => {
+    setSubmitting(true); setError("")
     try {
-      const response = await fetch("/api/applications", {
+      const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          readyToProceed: formData.readyToProceed === "yes",
-          firstTimeApplicant: formData.firstTimeApplicant === "yes"
-        })
+          ...form,
+          readyToProceed: form.readyToProceed === "yes",
+          firstTimeApplicant: form.firstTimeApplicant === "yes",
+          age: parseInt(form.age),
+        }),
       })
-      
-      const data = await response.json()
+      const data = await res.json()
       if (data.success) {
-        setApplicationId(data.applicationId)
-        setSubmitted(true)
+        router.push(`/success?id=${data.applicationId}`)
+      } else {
+        setError(data.error || "Failed to submit application.")
       }
-    } catch (error) {
-      console.error("Submission error:", error)
-    } finally {
-      setLoading(false)
+    } catch {
+      setError("Network error. Please try again.")
     }
-  }
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen" style={{ background: "#f5f5f5" }}>
-        <nav className="nav">
-          <div className="nav-content">
-            <Link href="/" className="nav-logo">
-              <span>Ebola Emergency Support</span>
-            </Link>
-          </div>
-        </nav>
-
-        <div className="container" style={{ padding: "60px 20px", textAlign: "center" }}>
-          <div className="card" style={{ maxWidth: "600px", margin: "0 auto" }}>
-            <div style={{ 
-              width: "80px", 
-              height: "80px", 
-              borderRadius: "50%", 
-              background: "#10b981",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "40px",
-              margin: "0 auto 24px"
-            }}>✓</div>
-            <h1 style={{ fontSize: "32px", marginBottom: "16px", fontWeight: 700 }}>
-              Application Submitted!
-            </h1>
-            <p style={{ color: "#6b7280", marginBottom: "24px" }}>
-              Your application has been received and is being reviewed.
-            </p>
-            <div className="card" style={{ background: "#f9fafb", marginBottom: "24px" }}>
-              <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Application ID</p>
-              <p style={{ fontSize: "24px", fontWeight: 700, color: "#0066cc" }}>{applicationId}</p>
-            </div>
-            <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "24px" }}>
-              Please save your Application ID. You will need it to check your application status.
-            </p>
-            <Link href="/" className="btn btn-primary">
-              Return Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
+    setSubmitting(false)
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f5f5" }}>
-      {/* Navigation */}
-      <nav className="nav">
-        <div className="nav-content">
-          <Link href="/" className="nav-logo">
-            <span>Ebola Emergency Support</span>
+    <>
+      <nav className="es-nav">
+        <div className="container d-flex align-items-center justify-content-between">
+          <Link href="/" className="es-nav-brand">
+            <span className="es-logo"><i className="bi bi-heart-pulse"></i></span>
+            Ebola Emergency Support
           </Link>
-          <div className="nav-links">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply</Link>
-            <Link href="/admin" className="nav-link">Admin</Link>
-          </div>
+          <Link href="/" className="es-nav-link"><i className="bi bi-arrow-left me-1"></i>Back to Home</Link>
         </div>
       </nav>
 
-      {/* Content */}
-      <div className="container" style={{ padding: "40px 20px" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <h1 style={{ fontSize: "36px", marginBottom: "12px", fontWeight: 700 }}>
-              Application for Emergency Support
-            </h1>
-            <p style={{ color: "#6b7280", fontSize: "18px" }}>
-              Complete the form below to apply for financial assistance
-            </p>
-          </div>
+      <div className="container py-5">
+        <div className="text-center mb-4">
+          <h1 className="mb-2">Application for Ebola Emergency Support</h1>
+          <p className="text-muted">Complete the form below to apply for financial assistance.</p>
+        </div>
 
-          {/* Progress Bar */}
-          <div style={{ marginBottom: "40px" }}>
-            <div className="progress-container">
-              {[1, 2, 3, 4].map((step) => (
-                <div key={step} className={`progress-step ${step <= currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}>
-                  <div className="progress-circle">{step}</div>
-                  <div className="progress-label">
-                    {step === 1 && "Getting Started"}
-                    {step === 2 && "Personal Info"}
-                    {step === 3 && "Location"}
-                    {step === 4 && "Review"}
-                  </div>
+        {/* Progress */}
+        <div className="es-progress-track mb-5">
+          {steps.map((label, i) => {
+            const n = i + 1
+            return (
+              <div key={label} className={`es-progress-step ${step === n ? "active" : step > n ? "done" : ""}`}>
+                <div className="es-progress-dot">
+                  {step > n ? <i className="bi bi-check-lg"></i> : n}
                 </div>
-              ))}
-            </div>
-            <div style={{ 
-              height: "4px", 
-              background: "#e5e7eb", 
-              borderRadius: "2px",
-              marginTop: "-40px",
-              position: "relative",
-              zIndex: 0
-            }}>
-              <div style={{
-                height: "100%",
-                width: `${progress}%`,
-                background: "linear-gradient(90deg, #0066cc 0%, #10b981 100%)",
-                borderRadius: "2px",
-                transition: "width 0.3s"
-              }} />
-            </div>
-          </div>
-
-          {/* Form Card */}
-          <div className="card">
-            {/* Step 1: Getting Started */}
-            {currentStep === 1 && (
-              <div className="fade-in">
-                <div className="card-header">
-                  <h2 className="card-title">Getting Started</h2>
-                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
-                    Tell us a bit about yourself and how you heard about us
-                  </p>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Are you ready to proceed with the application? *</label>
-                  <div className="radio-group">
-                    <label className={`radio-label ${formData.readyToProceed === "yes" ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="readyToProceed"
-                        value="yes"
-                        checked={formData.readyToProceed === "yes"}
-                        onChange={(e) => handleInputChange("readyToProceed", e.target.value)}
-                        style={{ display: "none" }}
-                      />
-                      Yes
-                    </label>
-                    <label className={`radio-label ${formData.readyToProceed === "no" ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="readyToProceed"
-                        value="no"
-                        checked={formData.readyToProceed === "no"}
-                        onChange={(e) => handleInputChange("readyToProceed", e.target.value)}
-                        style={{ display: "none" }}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Is this your first time applying? *</label>
-                  <div className="radio-group">
-                    <label className={`radio-label ${formData.firstTimeApplicant === "yes" ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="firstTimeApplicant"
-                        value="yes"
-                        checked={formData.firstTimeApplicant === "yes"}
-                        onChange={(e) => handleInputChange("firstTimeApplicant", e.target.value)}
-                        style={{ display: "none" }}
-                      />
-                      Yes
-                    </label>
-                    <label className={`radio-label ${formData.firstTimeApplicant === "no" ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="firstTimeApplicant"
-                        value="no"
-                        checked={formData.firstTimeApplicant === "no"}
-                        onChange={(e) => handleInputChange("firstTimeApplicant", e.target.value)}
-                        style={{ display: "none" }}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">How did you hear about us? *</label>
-                  <select
-                    className="form-input"
-                    value={formData.heardAboutFunds}
-                    onChange={(e) => handleInputChange("heardAboutFunds", e.target.value)}
-                  >
-                    <option value="">Select an option</option>
-                    <option value="healthcare_worker">Healthcare Worker</option>
-                    <option value="community_leader">Community Leader</option>
-                    <option value="social_media">Social Media</option>
-                    <option value="radio">Radio</option>
-                    <option value="tv">Television</option>
-                    <option value="friend">Friend or Family</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                {formData.heardAboutFunds === "other" && (
-                  <div className="form-group">
-                    <label className="form-label">Please specify *</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.otherSource}
-                      onChange={(e) => handleInputChange("otherSource", e.target.value)}
-                      placeholder="How did you hear about us?"
-                    />
-                  </div>
-                )}
+                <div className="es-progress-label">{label}</div>
               </div>
-            )}
+            )
+          })}
+        </div>
 
-            {/* Step 2: Personal Information */}
-            {currentStep === 2 && (
-              <div className="fade-in">
-                <div className="card-header">
-                  <h2 className="card-title">Personal Information</h2>
-                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
-                    Please provide your personal details
-                  </p>
+        <div className="es-form-card mx-auto" style={{ maxWidth: "760px" }}>
+          {error && (
+            <div className="alert alert-danger d-flex align-items-center" role="alert">
+              <i className="bi bi-exclamation-triangle me-2"></i>{error}
+            </div>
+          )}
+
+          {/* Step 1: Eligibility */}
+          {step === 1 && (
+            <div>
+              <h4 className="mb-4"><i className="bi bi-clipboard2-check me-2 es-text-primary"></i>Eligibility Questions</h4>
+
+              <div className="mb-4">
+                <label className="form-label">Are you ready to proceed with this application?</label>
+                <div className="d-flex gap-3">
+                  <div className="form-check"><input className="form-check-input" type="radio" name="readyToProceed" value="yes" checked={form.readyToProceed === "yes"} onChange={(e) => set("readyToProceed", e.target.value)} /><label className="form-check-label">Yes</label></div>
+                  <div className="form-check"><input className="form-check-input" type="radio" name="readyToProceed" value="no" checked={form.readyToProceed === "no"} onChange={(e) => set("readyToProceed", e.target.value)} /><label className="form-check-label">No</label></div>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">Full Name *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    placeholder="Enter your full name"
-                  />
+              <div className="mb-4">
+                <label className="form-label">Is this your first time applying?</label>
+                <div className="d-flex gap-3">
+                  <div className="form-check"><input className="form-check-input" type="radio" name="firstTimeApplicant" value="yes" checked={form.firstTimeApplicant === "yes"} onChange={(e) => set("firstTimeApplicant", e.target.value)} /><label className="form-check-label">Yes</label></div>
+                  <div className="form-check"><input className="form-check-input" type="radio" name="firstTimeApplicant" value="no" checked={form.firstTimeApplicant === "no"} onChange={(e) => set("firstTimeApplicant", e.target.value)} /><label className="form-check-label">No</label></div>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">Age *</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange("age", e.target.value)}
-                    placeholder="Enter your age"
-                    min="1"
-                    max="120"
-                  />
+              <div className="mb-4">
+                <label className="form-label">How did you hear about this fund?</label>
+                <select className="form-select" value={form.heardAboutFunds} onChange={(e) => set("heardAboutFunds", e.target.value)}>
+                  <option value="">Select an option</option>
+                  <option value="health_worker">Health Worker</option>
+                  <option value="hospital">Hospital / Clinic</option>
+                  <option value="radio">Radio</option>
+                  <option value="social_media">Social Media</option>
+                  <option value="community">Community Leader</option>
+                  <option value="friend">Friend / Family</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {form.heardAboutFunds === "other" && (
+                <div className="mb-4">
+                  <label className="form-label">Please specify</label>
+                  <input className="form-control" value={form.otherSource} onChange={(e) => set("otherSource", e.target.value)} placeholder="How did you hear about us?" />
                 </div>
+              )}
+            </div>
+          )}
 
-                <div className="form-group">
-                  <label className="form-label">Occupation *</label>
-                  <select
-                    className="form-input"
-                    value={formData.occupation}
-                    onChange={(e) => handleInputChange("occupation", e.target.value)}
-                  >
-                    <option value="">Select your occupation</option>
-                    <option value="healthcare_worker">Healthcare Worker</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="farmer">Farmer</option>
-                    <option value="student">Student</option>
-                    <option value="unemployed">Unemployed</option>
-                    <option value="other">Other</option>
-                  </select>
+          {/* Step 2: Background */}
+          {step === 2 && (
+            <div>
+              <h4 className="mb-4"><i className="bi bi-person-badge me-2 es-text-primary"></i>Your Background</h4>
+              <div className="mb-4">
+                <label className="form-label">Occupation</label>
+                <select className="form-select" value={form.occupation} onChange={(e) => set("occupation", e.target.value)}>
+                  <option value="">Select your occupation</option>
+                  <option value="healthcare_worker">Healthcare Worker</option>
+                  <option value="student">Student</option>
+                  <option value="farmer">Farmer</option>
+                  <option value="trader">Trader / Business</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="unemployed">Unemployed</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              {form.occupation === "other" && (
+                <div className="mb-4">
+                  <label className="form-label">Please specify your occupation</label>
+                  <input className="form-control" value={form.otherOccupation} onChange={(e) => set("otherOccupation", e.target.value)} placeholder="Your occupation" />
                 </div>
+              )}
+            </div>
+          )}
 
-                {formData.occupation === "other" && (
-                  <div className="form-group">
-                    <label className="form-label">Please specify *</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.otherOccupation}
-                      onChange={(e) => handleInputChange("otherOccupation", e.target.value)}
-                      placeholder="Your occupation"
-                    />
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input
-                    type="email"
-                    className="form-input"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder="your.email@example.com"
-                  />
+          {/* Step 3: Personal */}
+          {step === 3 && (
+            <div>
+              <h4 className="mb-4"><i className="bi bi-person-vcard me-2 es-text-primary"></i>Personal Information</h4>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label">Full Name <span className="text-danger">*</span></label>
+                  <input className="form-control" value={form.fullName} onChange={(e) => set("fullName", e.target.value)} placeholder="John Doe" />
                 </div>
-
-                <div className="form-group">
+                <div className="col-md-6">
+                  <label className="form-label">Age <span className="text-danger">*</span></label>
+                  <input type="number" className="form-control" value={form.age} onChange={(e) => set("age", e.target.value)} placeholder="25" min="0" max="120" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Email</label>
+                  <input type="email" className="form-control" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" />
+                </div>
+                <div className="col-md-6">
                   <label className="form-label">Phone Number</label>
-                  <input
-                    type="tel"
-                    className="form-input"
-                    value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                    placeholder="+256 XXX XXX XXX"
-                  />
+                  <input className="form-control" value={form.phoneNumber} onChange={(e) => set("phoneNumber", e.target.value)} placeholder="+1234567890" />
                 </div>
-              </div>
-            )}
-
-            {/* Step 3: Location */}
-            {currentStep === 3 && (
-              <div className="fade-in">
-                <div className="card-header">
-                  <h2 className="card-title">Location Details</h2>
-                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
-                    Where are you located?
-                  </p>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Country *</label>
-                  <select
-                    className="form-input"
-                    value={formData.country}
-                    onChange={(e) => handleInputChange("country", e.target.value)}
-                  >
-                    <option value="">Select your country</option>
-                    <option value="DRC">Democratic Republic of Congo</option>
-                    <option value="Uganda">Uganda</option>
-                    <option value="Guinea">Guinea</option>
-                    <option value="Sierra Leone">Sierra Leone</option>
-                    <option value="Liberia">Liberia</option>
-                    <option value="Nigeria">Nigeria</option>
-                    <option value="Ghana">Ghana</option>
-                    <option value="other">Other</option>
+                <div className="col-md-4">
+                  <label className="form-label">Country <span className="text-danger">*</span></label>
+                  <select className="form-select" value={form.country} onChange={(e) => set("country", e.target.value)}>
+                    <option value="">Select country</option>
+                    <option>Liberia</option><option>Sierra Leone</option><option>Guinea</option>
+                    <option>Democratic Republic of Congo</option><option>Uganda</option><option>Nigeria</option>
+                    <option>Senegal</option><option>Mali</option><option>Côte d'Ivoire</option>
+                    <option>Ghana</option><option>Cameroon</option><option>Other</option>
                   </select>
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label">State/Province *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.state}
-                    onChange={(e) => handleInputChange("state", e.target.value)}
-                    placeholder="Enter your state or province"
-                  />
+                <div className="col-md-4">
+                  <label className="form-label">State / Region <span className="text-danger">*</span></label>
+                  <input className="form-control" value={form.state} onChange={(e) => set("state", e.target.value)} placeholder="State or region" />
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label">Town/City *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.town}
-                    onChange={(e) => handleInputChange("town", e.target.value)}
-                    placeholder="Enter your town or city"
-                  />
+                <div className="col-md-4">
+                  <label className="form-label">Town <span className="text-danger">*</span></label>
+                  <input className="form-control" value={form.town} onChange={(e) => set("town", e.target.value)} placeholder="Town or city" />
                 </div>
               </div>
-            )}
-
-            {/* Step 4: Review */}
-            {currentStep === 4 && (
-              <div className="fade-in">
-                <div className="card-header">
-                  <h2 className="card-title">Review Your Application</h2>
-                  <p style={{ color: "#6b7280", marginTop: "8px" }}>
-                    Please verify all information before submitting
-                  </p>
-                </div>
-
-                <div className="card" style={{ background: "#f9fafb", marginBottom: "20px" }}>
-                  <h3 style={{ fontSize: "18px", marginBottom: "16px", fontWeight: 600 }}>Personal Information</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Full Name:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.fullName || "Not provided"}</p>
-                    </div>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Age:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.age || "Not provided"}</p>
-                    </div>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Email:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.email || "Not provided"}</p>
-                    </div>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Phone:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.phoneNumber || "Not provided"}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card" style={{ background: "#f9fafb", marginBottom: "20px" }}>
-                  <h3 style={{ fontSize: "18px", marginBottom: "16px", fontWeight: 600 }}>Location</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Country:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.country || "Not provided"}</p>
-                    </div>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>State:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.state || "Not provided"}</p>
-                    </div>
-                    <div>
-                      <span style={{ color: "#6b7280", fontSize: "14px" }}>Town:</span>
-                      <p style={{ fontWeight: 600 }}>{formData.town || "Not provided"}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ 
-                  background: "#fef3c7", 
-                  border: "1px solid #fbbf24", 
-                  borderRadius: "6px",
-                  padding: "16px",
-                  marginBottom: "20px"
-                }}>
-                  <p style={{ marginBottom: "8px", fontWeight: 600 }}>⚠️ Important Notice</p>
-                  <p style={{ fontSize: "14px", color: "#92400e" }}>
-                    By submitting this application, you confirm that all information provided is accurate 
-                    and complete. False information may result in disqualification.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div style={{ 
-              display: "flex", 
-              justifyContent: "space-between",
-              marginTop: "32px",
-              paddingTop: "24px",
-              borderTop: "1px solid #e5e7eb"
-            }}>
-              {currentStep > 1 && (
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setCurrentStep(prevStep(currentStep))}
-                >
-                  Previous
-                </button>
-              )}
-              
-              {currentStep < 4 ? (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setCurrentStep(nextStep(currentStep))}
-                  style={{ marginLeft: "auto" }}
-                >
-                  Next Step
-                </button>
-              ) : (
-                <button
-                  className="btn btn-success"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  style={{ marginLeft: "auto" }}
-                >
-                  {loading ? "Submitting..." : "Submit Application"}
-                </button>
-              )}
             </div>
+          )}
+
+          {/* Step 4: Review */}
+          {step === 4 && (
+            <div>
+              <h4 className="mb-4"><i className="bi bi-check2-square me-2 es-text-primary"></i>Review Your Application</h4>
+              <div className="table-responsive">
+                <table className="table table-borderless">
+                  <tbody>
+                    <tr><th className="text-muted" style={{ width: "40%" }}>Ready to proceed</th><td>{form.readyToProceed === "yes" ? "Yes" : "No"}</td></tr>
+                    <tr><th className="text-muted">First time applicant</th><td>{form.firstTimeApplicant === "yes" ? "Yes" : "No"}</td></tr>
+                    <tr><th className="text-muted">Heard about fund</th><td>{form.heardAboutFunds}{form.otherSource ? ` — ${form.otherSource}` : ""}</td></tr>
+                    <tr><th className="text-muted">Occupation</th><td>{form.occupation}{form.otherOccupation ? ` — ${form.otherOccupation}` : ""}</td></tr>
+                    <tr><th className="text-muted">Full Name</th><td>{form.fullName}</td></tr>
+                    <tr><th className="text-muted">Age</th><td>{form.age}</td></tr>
+                    <tr><th className="text-muted">Email</th><td>{form.email || "—"}</td></tr>
+                    <tr><th className="text-muted">Phone</th><td>{form.phoneNumber || "—"}</td></tr>
+                    <tr><th className="text-muted">Location</th><td>{[form.town, form.state, form.country].filter(Boolean).join(", ")}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="alert alert-info">
+                <i className="bi bi-info-circle me-2"></i>
+                Please confirm all details are correct before submitting. You will receive
+                an application reference number after submission.
+              </div>
+            </div>
+          )}
+
+          {/* Nav buttons */}
+          <div className="d-flex justify-content-between mt-4 pt-3 border-top">
+            <button className="btn btn-outline-secondary" onClick={back} disabled={step === 1}>
+              <i className="bi bi-arrow-left me-1"></i>Back
+            </button>
+            {step < 4 ? (
+              <button className="btn btn-es" onClick={next}>
+                Continue<i className="bi bi-arrow-right ms-1"></i>
+              </button>
+            ) : (
+              <button className="btn btn-es" onClick={submit} disabled={submitting}>
+                {submitting ? <><span className="spinner-border spinner-border-sm me-1"></span>Submitting...</> : <><i className="bi bi-check-lg me-1"></i>Submit Application</>}
+              </button>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

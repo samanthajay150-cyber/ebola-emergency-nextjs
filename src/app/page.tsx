@@ -1,357 +1,175 @@
 import Link from "next/link"
-import { 
-  Heart, Activity, Users, Shield, Globe, Clock, 
-  ArrowRight, AlertTriangle, Phone, FileText, 
-  CheckCircle2, Stethoscope, MapPin, HelpCircle
-} from "lucide-react"
+import Image from "next/image"
 
 export default function HomePage() {
   return (
-    <div className="page">
-      {/* ==================== TOP ALERT BAR ==================== */}
-      <div className="alert-bar">
-        <div className="container alert-bar-content">
-          <AlertTriangle size={16} />
-          <span>Active Ebola Response — 24/7 Support Available</span>
-          <a href="tel:+18005550199" className="alert-bar-phone">
-            <Phone size={14} /> +1 (800) 555-0199
-          </a>
-        </div>
-      </div>
-
-      {/* ==================== NAVIGATION ==================== */}
-      <nav className="nav">
-        <div className="container nav-content">
-          <Link href="/" className="nav-logo">
-            <span className="nav-logo-icon">
-              <Heart size={22} fill="currentColor" />
-            </span>
-            <span className="nav-logo-text">Ebola Emergency<span>Support</span></span>
+    <>
+      {/* ===== Navbar ===== */}
+      <nav className="es-nav">
+        <div className="container d-flex align-items-center justify-content-between">
+          <Link href="/" className="es-nav-brand">
+            <span className="es-logo"><i className="bi bi-heart-pulse"></i></span>
+            Ebola Emergency Support
           </Link>
-          <div className="nav-links">
-            <Link href="/" className="nav-link active">Home</Link>
-            <Link href="/about" className="nav-link">About Ebola</Link>
-            <Link href="/resources" className="nav-link">Resources</Link>
-            <Link href="/faq" className="nav-link">FAQ</Link>
-            <Link href="/apply" className="nav-link">Apply</Link>
-            <Link href="/admin" className="nav-cta">Admin Login</Link>
+          <div className="d-none d-md-flex align-items-center gap-1">
+            <Link href="/" className="es-nav-link active">Home</Link>
+            <Link href="/about" className="es-nav-link">About Ebola</Link>
+            <Link href="/resources" className="es-nav-link">Resources</Link>
+            <Link href="/admin" className="es-nav-link">Admin</Link>
+            <Link href="/apply" className="btn btn-es ms-2">Apply Now</Link>
           </div>
+          <Link href="/apply" className="btn btn-es d-md-none">Apply</Link>
         </div>
       </nav>
 
-      {/* ==================== HERO SECTION ==================== */}
-      <section className="hero">
-        <div className="hero-overlay" />
-        <div className="hero-bg" style={{ backgroundImage: "url('/images/hero-ebola-treatment.jpg')" }} />
-        <div className="container hero-content">
-          <div className="hero-badge">
-            <Activity size={14} /> Global Emergency Response Platform
-          </div>
-          <h1>Emergency Financial Support<br />for Ebola Treatment</h1>
-          <p>
-            We provide fast, transparent financial assistance to individuals and families 
-            affected by Ebola. Apply online, track your application, and receive support 
-            within 5-10 business days.
-          </p>
-          <div className="hero-actions">
-            <Link href="/apply" className="btn btn-primary btn-lg">
-              Start Your Application <ArrowRight size={18} />
-            </Link>
-            <Link href="/about" className="btn btn-outline btn-lg">
-              Learn About Ebola
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== STATS BAR ==================== */}
-      <section className="stats-bar">
-        <div className="container stats-grid">
-          <div className="stat-item">
-            <div className="stat-number">2,847</div>
-            <div className="stat-label">Applications Processed</div>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <div className="stat-number">1,923</div>
-            <div className="stat-label">Families Supported</div>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <div className="stat-number">48h</div>
-            <div className="stat-label">Average Response</div>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat-item">
-            <div className="stat-number">32</div>
-            <div className="stat-label">Countries Served</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== QUICK ACTIONS ==================== */}
-      <section className="section">
+      {/* ===== Hero ===== */}
+      <header className="es-hero">
         <div className="container">
-          <div className="section-header">
-            <h2>What You Can Do Here</h2>
-            <p>Get the support you need quickly and securely</p>
-          </div>
-          <div className="grid grid-cols-4">
-            <Link href="/apply" className="action-card">
-              <div className="action-card-icon action-card-icon-red">
-                <FileText size={28} />
-              </div>
-              <h3>Apply for Support</h3>
-              <p>Submit your application for emergency financial assistance</p>
-              <span className="action-card-link">Start now <ArrowRight size={14} /></span>
-            </Link>
-            <Link href="/track" className="action-card">
-              <div className="action-card-icon action-card-icon-blue">
-                <Clock size={28} />
-              </div>
-              <h3>Track Application</h3>
-              <p>Check the status of your submitted application</p>
-              <span className="action-card-link">Check status <ArrowRight size={14} /></span>
-            </Link>
-            <Link href="/resources" className="action-card">
-              <div className="action-card-icon action-card-icon-green">
-                <Shield size={28} />
-              </div>
-              <h3>Resources</h3>
-              <p>Access Ebola treatment guides and educational materials</p>
-              <span className="action-card-link">View resources <ArrowRight size={14} /></span>
-            </Link>
-            <Link href="/faq" className="action-card">
-              <div className="action-card-icon action-card-icon-amber">
-                <HelpCircle size={28} />
-              </div>
-              <h3>Get Answers</h3>
-              <p>Frequently asked questions about the support program</p>
-              <span className="action-card-link">Read FAQ <ArrowRight size={14} /></span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== ABOUT EBOLA ==================== */}
-      <section className="section section-tint">
-        <div className="container">
-          <div className="two-col">
-            <div className="two-col-text">
-              <div className="section-tag">About Ebola</div>
-              <h2>Understanding Ebola Virus Disease</h2>
-              <p>
-                Ebola Virus Disease (EVD) is a severe illness affecting humans and other 
-                primates. Early supportive care with rehydration and symptomatic treatment 
-                improves survival rates significantly.
-              </p>
-              <ul className="feature-list">
-                <li><CheckCircle2 size={18} /> Caused by the Ebolavirus species</li>
-                <li><CheckCircle2 size={18} /> Transmitted through direct contact</li>
-                <li><CheckCircle2 size={18} /> Symptoms appear 2-21 days after exposure</li>
-                <li><CheckCircle2 size={18} /> Treatable with early medical intervention</li>
-              </ul>
-              <Link href="/about" className="btn btn-primary">
-                Learn More <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="two-col-image">
-              <img 
-                src="/images/ebola-patient-care.jpg" 
-                alt="Ebola patient receiving care"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== SYMPTOMS ==================== */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Signs & Symptoms</h2>
-            <p>Recognize the warning signs early</p>
-          </div>
-          <div className="grid grid-cols-3">
-            <div className="symptom-card">
-              <div className="symptom-card-icon"><Activity size={24} /></div>
-              <h3>Early Stage (2-21 days)</h3>
-              <ul>
-                <li>High fever</li>
-                <li>Severe headache</li>
-                <li>Muscle and joint pain</li>
-                <li>Fatigue and weakness</li>
-              </ul>
-            </div>
-            <div className="symptom-card">
-              <div className="symptom-card-icon"><AlertTriangle size={24} /></div>
-              <h3>Advanced Stage</h3>
-              <ul>
-                <li>Vomiting and diarrhea</li>
-                <li>Rash</li>
-                <li>Impaired kidney function</li>
-                <li>Internal and external bleeding</li>
-              </ul>
-            </div>
-            <div className="symptom-card">
-              <div className="symptom-card-icon"><Phone size={24} /></div>
-              <h3>Seek Immediate Care</h3>
-              <ul>
-                <li>Contact emergency services</li>
-                <li>Isolate from others</li>
-                <li>Inform healthcare providers</li>
-                <li>Apply for financial support</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== HOW IT SPREADS ==================== */}
-      <section className="section section-tint">
-        <div className="container">
-          <div className="two-col two-col-reverse">
-            <div className="two-col-image">
-              <img 
-                src="/images/ebola-workers-team.jpg" 
-                alt="Ebola healthcare response team"
-              />
-            </div>
-            <div className="two-col-text">
-              <div className="section-tag">Transmission</div>
-              <h2>How Ebola Spreads</h2>
-              <p>
-                Ebola spreads through direct contact with bodily fluids of a person who is 
-                sick with or has died from Ebola, or objects contaminated with the virus.
-              </p>
-              <ul className="feature-list">
-                <li><CheckCircle2 size={18} /> Direct contact with blood or body fluids</li>
-                <li><CheckCircle2 size={18} /> Contact with contaminated objects (needles)</li>
-                <li><CheckCircle2 size={18} /> Contact with infected animals (bats, primates)</li>
-                <li><CheckCircle2 size={18} /> Not spread through air or water</li>
-              </ul>
-              <Link href="/about" className="btn btn-primary">
-                Prevention Tips <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== PREVENTION ==================== */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Prevention & Protection</h2>
-            <p>Keep yourself and your community safe</p>
-          </div>
-          <div className="grid grid-cols-4">
-            <div className="prevention-card">
-              <div className="prevention-card-icon"><Shield size={24} /></div>
-              <h3>Practice Hygiene</h3>
-              <p>Wash hands frequently with soap and water or use alcohol-based sanitizer</p>
-            </div>
-            <div className="prevention-card">
-              <div className="prevention-card-icon"><Users size={24} /></div>
-              <h3>Avoid Contact</h3>
-              <p>Avoid direct contact with infected individuals and bodily fluids</p>
-            </div>
-            <div className="prevention-card">
-              <div className="prevention-card-icon"><Stethoscope size={24} /></div>
-              <h3>Seek Care Early</h3>
-              <p>Early treatment significantly improves survival chances</p>
-            </div>
-            <div className="prevention-card">
-              <div className="prevention-card-icon"><MapPin size={24} /></div>
-              <h3>Safe Burials</h3>
-              <p>Follow safe and dignified burial practices for Ebola victims</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== FOR HEALTHCARE WORKERS ==================== */}
-      <section className="section section-dark">
-        <div className="container">
-          <div className="two-col">
-            <div className="two-col-image">
-              <img 
-                src="/images/ebola-supplies.jpg" 
-                alt="Ebola medical supplies and PPE"
-              />
-            </div>
-            <div className="two-col-text two-col-text-light">
-              <div className="section-tag section-tag-light">For Healthcare Workers</div>
-              <h2>Resources for Medical Professionals</h2>
-              <p>
-                Access clinical guidelines, PPE protocols, training materials, and 
-                patient management resources designed for frontline healthcare workers 
-                responding to Ebola outbreaks.
-              </p>
-              <ul className="feature-list feature-list-light">
-                <li><CheckCircle2 size={18} /> Clinical treatment guidelines</li>
-                <li><CheckCircle2 size={18} /> PPE and infection control protocols</li>
-                <li><CheckCircle2 size={18} /> Patient isolation procedures</li>
-                <li><CheckCircle2 size={18} /> Staff training and certification</li>
-              </ul>
-              <Link href="/resources" className="btn btn-primary">
-                Access Resources <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== CTA SECTION ==================== */}
-      <section className="section section-cta">
-        <div className="container cta-content">
-          <h2>Need Emergency Support?</h2>
-          <p>Apply now for financial assistance. Applications are processed within 5-10 business days.</p>
-          <Link href="/apply" className="btn btn-primary btn-lg">
-            Start Your Application <ArrowRight size={18} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ==================== FOOTER ==================== */}
-      <footer className="footer">
-        <div className="container footer-grid">
-          <div className="footer-col">
-            <div className="footer-logo">
-              <span className="nav-logo-icon">
-                <Heart size={22} fill="currentColor" />
+          <div className="row align-items-center g-5">
+            <div className="col-lg-6">
+              <span className="badge bg-warning text-dark mb-3 px-3 py-2">
+                <i className="bi bi-shield-plus me-1"></i> Emergency Response Platform
               </span>
-              <span>Ebola Emergency Support</span>
+              <h1>Emergency Financial Support for Ebola Treatment</h1>
+              <p className="lead">
+                We provide rapid financial assistance to individuals and families
+                affected by Ebola. Apply once, track your application, and receive
+                support through a transparent review process.
+              </p>
+              <div className="d-flex flex-wrap gap-3 mb-4">
+                <Link href="/apply" className="btn btn-light btn-lg fw-semibold">
+                  <i className="bi bi-file-earmark-medical me-2"></i>
+                  Start Your Application
+                </Link>
+                <Link href="/about" className="btn btn-outline-light btn-lg">
+                  Learn About Ebola
+                </Link>
+              </div>
+              <div className="row g-3 text-center">
+                <div className="col-4"><div className="es-hero-stat"><div className="num">24h</div><div className="lbl">Initial review</div></div></div>
+                <div className="col-4"><div className="es-hero-stat"><div className="num">5</div><div className="lbl">Day decision</div></div></div>
+                <div className="col-4"><div className="es-hero-stat"><div className="num">100%</div><div className="lbl">Transparent</div></div></div>
+              </div>
             </div>
-            <p>Providing emergency financial assistance and treatment support for individuals and families affected by Ebola worldwide.</p>
-          </div>
-          <div className="footer-col">
-            <h4>Quick Links</h4>
-            <Link href="/">Home</Link>
-            <Link href="/apply">Apply for Support</Link>
-            <Link href="/track">Track Application</Link>
-            <Link href="/about">About Ebola</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Resources</h4>
-            <Link href="/resources">Resource Library</Link>
-            <Link href="/faq">FAQ</Link>
-            <Link href="/about">Symptoms</Link>
-            <Link href="/about">Prevention</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Contact</h4>
-            <p><Phone size={14} /> +1 (800) 555-0199</p>
-            <p><Globe size={14} /> support@ebola-emergency.org</p>
-            <p><Clock size={14} /> 24/7 Emergency Support</p>
+            <div className="col-lg-6">
+              <Image
+                src="/images/hero-healthcare-workers.jpg"
+                alt="Healthcare workers providing Ebola treatment and support"
+                width={720}
+                height={480}
+                className="es-hero-img"
+                priority
+              />
+            </div>
           </div>
         </div>
-        <div className="footer-bottom">
-          <div className="container">
-            <p>&copy; {new Date().getFullYear()} Ebola Emergency Support. All rights reserved.</p>
+      </header>
+
+      {/* ===== Services ===== */}
+      <section className="es-section">
+        <div className="container">
+          <h2 className="es-section-title">How We Help</h2>
+          <p className="es-section-sub">
+            Comprehensive support for those affected by Ebola, from emergency medical
+            costs to long-term recovery.
+          </p>
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="es-card">
+                <div className="icon" style={{ background: "var(--es-primary)" }}>
+                  <i className="bi bi-hospital"></i>
+                </div>
+                <h3>Medical Treatment</h3>
+                <p>Coverage for hospitalization, medication, and essential treatment at Ebola treatment centers.</p>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="es-card">
+                <div className="icon" style={{ background: "var(--es-accent)" }}>
+                  <i className="bi bi-cash-coin"></i>
+                </div>
+                <h3>Financial Aid</h3>
+                <p>Direct financial support for families to cover living expenses during treatment and recovery.</p>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="es-card">
+                <div className="icon" style={{ background: "var(--es-success)" }}>
+                  <i className="bi bi-people"></i>
+                </div>
+                <h3>Survivor Support</h3>
+                <p>Long-term recovery assistance including counseling and reintegration support for survivors.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Process ===== */}
+      <section className="es-section" style={{ background: "#f5f5f4" }}>
+        <div className="container">
+          <h2 className="es-section-title">How It Works</h2>
+          <p className="es-section-sub">A simple, transparent process from application to support.</p>
+          <div className="row g-4">
+            <div className="col-md-3"><div className="es-step"><div className="es-step-num">1</div><h4>Submit Application</h4><p>Complete the online form with your details and needs.</p></div></div>
+            <div className="col-md-3"><div className="es-step"><div className="es-step-num">2</div><h4>Initial Review</h4><p>Our team reviews your application within 24 hours.</p></div></div>
+            <div className="col-md-3"><div className="es-step"><div className="es-step-num">3</div><h4>Verification</h4><p>We verify eligibility and contact you for any details.</p></div></div>
+            <div className="col-md-3"><div className="es-step"><div className="es-step-num">4</div><h4>Receive Support</h4><p>Approved applicants receive financial assistance within 5 business days.</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CTA ===== */}
+      <section className="es-section">
+        <div className="container">
+          <div className="es-content text-center" style={{ background: "linear-gradient(135deg, #7f1d1d, #b91c1c)", color: "#fff", border: "none" }}>
+            <h2 className="text-white">Need Emergency Support?</h2>
+            <p style={{ color: "rgba(255,255,255,0.9)", maxWidth: "600px", margin: "0 auto 1.5rem" }}>
+              If you or a family member is affected by Ebola, don&apos;t wait. Apply now
+              and our team will review your application within 24 hours.
+            </p>
+            <Link href="/apply" className="btn btn-light btn-lg fw-semibold">
+              <i className="bi bi-arrow-right-circle me-2"></i>Apply for Support
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Footer ===== */}
+      <footer className="es-footer">
+        <div className="container">
+          <div className="row g-4">
+            <div className="col-md-4">
+              <h5>Ebola Emergency Support</h5>
+              <p style={{ color: "#a8a29e", fontSize: "0.9rem" }}>
+                Emergency financial assistance for individuals and families affected by Ebola.
+              </p>
+            </div>
+            <div className="col-md-2">
+              <h5>Quick Links</h5>
+              <Link href="/">Home</Link>
+              <Link href="/apply">Apply</Link>
+              <Link href="/about">About Ebola</Link>
+              <Link href="/resources">Resources</Link>
+            </div>
+            <div className="col-md-3">
+              <h5>Support</h5>
+              <Link href="/admin">Admin Login</Link>
+              <Link href="/faq">FAQ</Link>
+              <a href="mailto:support@ebola-emergency.org">Contact Support</a>
+            </div>
+            <div className="col-md-3">
+              <h5>Emergency Contacts</h5>
+              <a href="tel:+11234567890">WHO Hotline</a>
+              <a href="https://www.who.int" target="_blank" rel="noreferrer">WHO Ebola Info</a>
+              <a href="https://www.cdc.gov/ebola" target="_blank" rel="noreferrer">CDC Ebola</a>
+            </div>
+          </div>
+          <div className="es-footer-bottom">
+            &copy; {new Date().getFullYear()} Ebola Emergency Support. For emergency response use.
           </div>
         </div>
       </footer>
-    </div>
+    </>
   )
 }
