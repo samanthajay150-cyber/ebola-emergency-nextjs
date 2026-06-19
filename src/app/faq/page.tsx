@@ -1,5 +1,7 @@
-import Link from "next/link"
-import { Heart, ChevronDown } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import { SiteLayout } from "@/components/SiteLayout"
 
 const faqs = [
   {
@@ -18,50 +20,60 @@ const faqs = [
     q: "Is this website official?",
     a: "No. This is a support and information platform designed to help users understand Ebola and submit assistance applications.",
   },
+  {
+    q: "How long does the review take?",
+    a: "Initial review is completed within 24 hours. The full decision process takes up to 5 business days.",
+  },
+  {
+    q: "How do I track my application?",
+    a: "After submitting, you'll receive a reference number (e.g. EBM-2026-XXXXXX). Use it to check your application status.",
+  },
+  {
+    q: "What if I need to edit my application?",
+    a: "Your progress is saved automatically as you fill out the form. You can edit any section before final submission.",
+  },
 ]
 
 export default function FAQPage() {
+  const [open, setOpen] = useState<number | null>(0)
+
   return (
-    <div className="page">
-      <nav className="nav">
-        <div className="container nav-content">
-          <Link href="/" className="nav-logo">
-            <span className="nav-logo-icon"><Heart size={22} fill="currentColor" /></span>
-            <span className="nav-logo-text">Ebola Emergency<span>Support</span></span>
-          </Link>
-          <div className="nav-links">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/about" className="nav-link">About Ebola</Link>
-            <Link href="/resources" className="nav-link">Resources</Link>
-            <Link href="/faq" className="nav-link active">FAQ</Link>
-            <Link href="/apply" className="nav-link">Apply</Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="page-header">
-        <div className="container">
-          <div className="page-header-tag">FAQ</div>
-          <h1>Frequently Asked Questions</h1>
-          <p>Answers to common questions about Ebola and the support program</p>
-        </div>
-      </div>
-
-      <section className="section">
-        <div className="container">
-          <div className="faq-list">
-            {faqs.map((item) => (
-              <details key={item.q} className="faq-item">
-                <summary>
-                  <span>{item.q}</span>
-                  <ChevronDown size={18} />
-                </summary>
-                <p>{item.a}</p>
-              </details>
-            ))}
-          </div>
+    <SiteLayout activeKey="faq">
+      <section className="es-hero-sm text-white">
+        <div className="container py-5">
+          <span className="badge bg-light text-dark mb-3">FAQ</span>
+          <h1 className="display-5 fw-bold">Frequently Asked Questions</h1>
+          <p className="lead">Find answers to common questions about Ebola and our support platform.</p>
         </div>
       </section>
-    </div>
+
+      <div className="container py-5">
+        <div className="row justify-content-center">
+          <div className="col-lg-8">
+            <div className="accordion" id="faqAccordion">
+              {faqs.map((faq, i) => (
+                <div className="es-card mb-3" key={i}>
+                  <h2 className="accordion-header">
+                    <button
+                      className={`accordion-button ${open === i ? "" : "collapsed"} bg-transparent shadow-none`}
+                      type="button"
+                      onClick={() => setOpen(open === i ? null : i)}
+                      style={{ fontWeight: 600, color: "var(--es-dark)" }}
+                    >
+                      {faq.q}
+                    </button>
+                  </h2>
+                  {open === i && (
+                    <div className="accordion-body pt-0 text-secondary">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </SiteLayout>
   )
 }

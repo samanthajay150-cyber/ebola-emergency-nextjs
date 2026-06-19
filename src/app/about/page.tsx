@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { AlertTriangle, Shield, Activity, Stethoscope, Heart } from "lucide-react"
+import { SiteLayout } from "@/components/SiteLayout"
 
 export default function AboutPage() {
   return (
-    <div className="es-page">
+    <SiteLayout activeKey="about">
       <section className="es-hero-sm text-white">
         <div className="container py-5">
           <div className="row align-items-center">
@@ -77,6 +77,6 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </SiteLayout>
   )
 }

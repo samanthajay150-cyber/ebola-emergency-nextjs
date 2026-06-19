@@ -1,27 +1,10 @@
 import Link from "next/link"
 import Image from "next/image"
+import { SiteLayout } from "@/components/SiteLayout"
 
 export default function HomePage() {
   return (
-    <>
-      {/* ===== Navbar ===== */}
-      <nav className="es-nav">
-        <div className="container d-flex align-items-center justify-content-between">
-          <Link href="/" className="es-nav-brand">
-            <span className="es-logo"><i className="bi bi-heart-pulse"></i></span>
-            Ebola Emergency Support
-          </Link>
-          <div className="d-none d-md-flex align-items-center gap-1">
-            <Link href="/" className="es-nav-link active">Home</Link>
-            <Link href="/about" className="es-nav-link">About Ebola</Link>
-            <Link href="/resources" className="es-nav-link">Resources</Link>
-            <Link href="/admin" className="es-nav-link">Admin</Link>
-            <Link href="/apply" className="btn btn-es ms-2">Apply Now</Link>
-          </div>
-          <Link href="/apply" className="btn btn-es d-md-none">Apply</Link>
-        </div>
-      </nav>
-
+    <SiteLayout activeKey="home">
       {/* ===== Hero ===== */}
       <header className="es-hero">
         <div className="container">
@@ -134,42 +117,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ===== Footer ===== */}
-      <footer className="es-footer">
-        <div className="container">
-          <div className="row g-4">
-            <div className="col-md-4">
-              <h5>Ebola Emergency Support</h5>
-              <p style={{ color: "#a8a29e", fontSize: "0.9rem" }}>
-                Emergency financial assistance for individuals and families affected by Ebola.
-              </p>
-            </div>
-            <div className="col-md-2">
-              <h5>Quick Links</h5>
-              <Link href="/">Home</Link>
-              <Link href="/apply">Apply</Link>
-              <Link href="/about">About Ebola</Link>
-              <Link href="/resources">Resources</Link>
-            </div>
-            <div className="col-md-3">
-              <h5>Support</h5>
-              <Link href="/admin">Admin Login</Link>
-              <Link href="/faq">FAQ</Link>
-              <a href="mailto:support@ebola-emergency.org">Contact Support</a>
-            </div>
-            <div className="col-md-3">
-              <h5>Emergency Contacts</h5>
-              <a href="tel:+11234567890">WHO Hotline</a>
-              <a href="https://www.who.int" target="_blank" rel="noreferrer">WHO Ebola Info</a>
-              <a href="https://www.cdc.gov/ebola" target="_blank" rel="noreferrer">CDC Ebola</a>
-            </div>
-          </div>
-          <div className="es-footer-bottom">
-            &copy; {new Date().getFullYear()} Ebola Emergency Support. For emergency response use.
-          </div>
-        </div>
-      </footer>
-    </>
+    </SiteLayout>
   )
 }

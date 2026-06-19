@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { SiteLayout } from "@/components/SiteLayout"
 
 export default function ResourcesPage() {
   const resources = [
@@ -9,12 +9,12 @@ export default function ResourcesPage() {
   ]
 
   return (
-    <div className="es-page">
+    <SiteLayout activeKey="resources">
       <section className="es-hero-sm text-white">
         <div className="container py-5">
           <span className="badge bg-light text-dark mb-3">Resources</span>
-          <h1 className="display-5 fw-bold">Helpful Resources &amp; References</h1>
-          <p className="lead">Trusted sources for Ebola information, guidance, and support.</p>
+          <h1 className="display-5 fw-bold">Ebola Resources</h1>
+          <p className="lead">Trusted information and guidance from global health authorities.</p>
         </div>
       </section>
 
@@ -22,32 +22,22 @@ export default function ResourcesPage() {
         <div className="row g-4">
           {resources.map((r) => (
             <div className="col-md-6" key={r.t}>
-              <a href={r.u} target="_blank" rel="noopener noreferrer" className="es-card d-block text-decoration-none text-reset h-100">
-                <div className="d-flex align-items-start">
-                  <div className="es-icon-box bg-primary-subtle text-primary me-3"><i className={`bi ${r.i}`}></i></div>
-                  <div>
-                    <h2 className="h5 mb-1">{r.t}</h2>
-                    <p className="text-muted small mb-2">{r.d}</p>
-                    <span className="text-primary small fw-medium">Visit resource <i className="bi bi-arrow-right"></i></span>
+              <a href={r.u} target="_blank" rel="noreferrer" className="text-decoration-none">
+                <div className="es-card h-100">
+                  <div className="d-flex align-items-start">
+                    <div className="es-icon-box bg-primary-subtle text-primary me-3"><i className={`bi ${r.i}`}></i></div>
+                    <div>
+                      <h3 className="h5 mb-1">{r.t}</h3>
+                      <p className="text-secondary mb-2">{r.d}</p>
+                      <span className="text-primary fw-semibold small">Visit resource <i className="bi bi-arrow-right"></i></span>
+                    </div>
                   </div>
                 </div>
               </a>
             </div>
           ))}
         </div>
-
-        <div className="es-card mt-5 bg-light">
-          <div className="row align-items-center">
-            <div className="col-md-8">
-              <h2 className="h5 mb-1">Need financial assistance?</h2>
-              <p className="text-muted mb-md-0">Our platform helps you apply for emergency funds for Ebola treatment and care.</p>
-            </div>
-            <div className="col-md-4 text-md-end">
-              <Link href="/apply" className="btn btn-es"><i className="bi bi-arrow-right me-1"></i>Apply Now</Link>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    </SiteLayout>
   )
 }
