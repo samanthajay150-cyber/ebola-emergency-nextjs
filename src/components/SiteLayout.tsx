@@ -2,53 +2,66 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Heart, Phone, Mail, Clock, MapPin, AlertCircle, ArrowRight } from "lucide-react"
+import { Heart, Phone, Mail, Clock, AlertCircle, ArrowRight } from "lucide-react"
 import { useState } from "react"
-
-interface SiteLayoutProps {
-  children: React.ReactNode
-  activeKey?: string
-  hideApply?: boolean
-}
 
 export function Header() {
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About Ebola" },
     { href: "/resources", label: "Resources" },
     { href: "/faq", label: "FAQ" },
-    { href: "/apply", label: "Apply", highlight: true },
   ]
+
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <nav className="navbar navbar-expand-lg sticky-top shadow-sm" style={{ backgroundColor: "#fff", borderBottom: "3px solid #dc2626" }}>
       <div className="container">
-        <Link href="/" className="navbar-brand d-flex align-items-center gap-2 fw-bold" style={{ color: "#dc2626", fontSize: "1.25rem" }}>
+        <Link href="/" className="navbar-brand d-flex align-items-center gap-2 fw-bold" style={{ color: "#dc2626", fontSize: "1.25rem" }} onClick={closeMenu}>
           <span className="d-inline-flex align-items-center justify-content-center rounded-circle" style={{ backgroundColor: "#dc2626", width: "40px", height: "40px" }}>
             <Heart size={20} color="#fff" />
           </span>
           <span>Ebola Emergency Support</span>
         </Link>
 
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button
+          className="navbar-toggler"
+          type="button"
+          aria-controls="mainNav"
+          aria-expanded={menuOpen}
+          aria-label="Toggle navigation"
+          onClick={() => setMenuOpen((o) => !o)}
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="mainNav">
+        <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="mainNav">
           <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             {navItems.map((item) => (
               <li className="nav-item" key={item.href}>
                 <Link
                   href={item.href}
-                  className={`nav-link ${pathname === item.href ? "active" : ""} ${item.highlight ? "btn btn-danger text-white px-3 fw-semibold" : ""}`}
-                  style={item.highlight ? {} : { color: pathname === item.href ? "#dc2626" : "#374151", fontWeight: pathname === item.href ? 600 : 500 }}
+                  className={`nav-link ${pathname === item.href ? "active" : ""}`}
+                  style={{ color: pathname === item.href ? "#dc2626" : "#374151", fontWeight: pathname === item.href ? 600 : 500 }}
+                  onClick={closeMenu}
                 >
                   {item.label}
                 </Link>
               </li>
             ))}
+            <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
+              <Link
+                href="/apply"
+                className="btn btn-danger text-white px-3 fw-semibold"
+                onClick={closeMenu}
+              >
+                Apply Now
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
@@ -125,7 +138,13 @@ export function Footer() {
   )
 }
 
-export function SiteLayout({ children, activeKey, hideApply }: SiteLayoutProps) {
+interface SiteLayoutProps {
+  children: React.ReactNode
+  activeKey?: string
+  hideApply?: boolean
+}
+
+export function SiteLayout({ children }: SiteLayoutProps) {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />

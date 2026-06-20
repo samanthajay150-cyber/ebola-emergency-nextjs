@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ChevronDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { fetchStates, type CountryState } from "@/lib/countries"
 
 interface StateSelectProps {
@@ -16,6 +15,7 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     async function loadStates() {
@@ -31,68 +31,79 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
     loadStates()
   }, [countryCode])
 
-  const filteredStates = states.filter(state =>
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+        setSearch("")
+      }
+    }
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isOpen])
+
+  const filteredStates = states.filter((state) =>
     state.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const selectedState = states.find(s => s.name === value)
+  const selectedState = states.find((s) => s.name === value)
 
   return (
-    <div className="relative">
-      <label className="block text-sm font-semibold mb-2" style={{ color: "#374151" }}>
-        State/Region *
-      </label>
-      
+    <div ref={wrapperRef} style={{ position: "relative" }}>
+      <label className="form-label fw-semibold">State/Region *</label>
+
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => countryCode && setIsOpen(!isOpen)}
         disabled={!countryCode}
-        className="input-field flex items-center justify-between"
+        className="form-select d-flex align-items-center justify-content-between text-start"
         style={{
-          width: "100%",
-          padding: "14px",
-          border: error ? "2px solid #ef4444" : "1px solid #d1d5db",
-          borderRadius: "8px",
-          textAlign: "left",
+          border: error ? "2px solid #ef4444" : undefined,
           cursor: countryCode ? "pointer" : "not-allowed",
-          backgroundColor: countryCode ? "white" : "#f3f4f6",
-          opacity: countryCode ? 1 : 0.6
+          backgroundColor: countryCode ? undefined : "#f3f4f6",
+          opacity: countryCode ? 1 : 0.6,
         }}
       >
-        <span>
-          {selectedState ? selectedState.name : "Select state/region"}
-        </span>
-        <ChevronDown size={20} />
+        <span>{selectedState ? selectedState.name : "Select state/region"}</span>
+        <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>&#9662;</span>
       </button>
 
-      {error && (
-        <p className="text-sm" style={{ color: "#ef4444", marginTop: "4px" }}>{error}</p>
-      )}
+      {error && <div className="text-danger small mt-1">{error}</div>}
 
       {isOpen && (
-        <div 
-          className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-hidden"
-          style={{ border: "1px solid #e5e7eb" }}
+        <div
+          className="bg-white border rounded shadow"
+          style={{
+            position: "absolute",
+            zIndex: 1050,
+            width: "100%",
+            marginTop: "4px",
+            maxHeight: "280px",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <input
             type="text"
             placeholder="Search states..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border-b"
-            style={{ border: "none", borderBottom: "1px solid #e5e7eb" }}
+            className="form-control rounded-0 border-0"
+            style={{ borderBottom: "1px solid #e5e7eb" }}
             autoFocus
           />
-          
-          <div className="overflow-y-auto max-h-48">
+
+          <div style={{ overflowY: "auto", flex: 1 }}>
             {loading ? (
-              <div className="px-4 py-2 text-gray-500">Loading states...</div>
+              <div className="px-3 py-2 text-muted small">Loading states...</div>
             ) : filteredStates.length === 0 ? (
-              <div className="px-4 py-2 text-gray-500">
+              <div className="px-3 py-2 text-muted small">
                 {countryCode ? "No states found" : "Please select a country first"}
               </div>
             ) : (
-              filteredStates.map(state => (
+              filteredStates.map((state) => (
                 <button
                   key={state.stateCode}
                   type="button"
@@ -101,8 +112,10 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
                     setIsOpen(false)
                     setSearch("")
                   }}
-                  className="w-full px-4 py-2 hover:bg-gray-100"
-                  style={{ textAlign: "left" }}
+                  className="w-100 text-start border-0 bg-transparent px-3 py-2 small"
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   {state.name}
                 </button>

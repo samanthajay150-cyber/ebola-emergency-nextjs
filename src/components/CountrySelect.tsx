@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ChevronDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { getCachedCountries, type Country } from "@/lib/countries"
 
 interface CountrySelectProps {
@@ -15,6 +14,7 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     async function loadCountries() {
@@ -26,71 +26,83 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
     loadCountries()
   }, [])
 
-  const filteredCountries = countries.filter(country =>
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+        setSearch("")
+      }
+    }
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isOpen])
+
+  const filteredCountries = countries.filter((country) =>
     country.name.common.toLowerCase().includes(search.toLowerCase()) ||
     country.cca2.toLowerCase().includes(search.toLowerCase())
   )
 
-  const selectedCountry = countries.find(c => c.cca2 === value)
+  const selectedCountry = countries.find((c) => c.cca2 === value)
 
   return (
-    <div className="relative">
-      <label className="block text-sm font-semibold mb-2" style={{ color: "#374151" }}>
-        Country *
-      </label>
-      
+    <div ref={wrapperRef} style={{ position: "relative" }}>
+      <label className="form-label fw-semibold">Country *</label>
+
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="input-field flex items-center justify-between"
+        className="form-select d-flex align-items-center justify-content-between text-start"
         style={{
-          width: "100%",
-          padding: "14px",
-          border: error ? "2px solid #ef4444" : "1px solid #d1d5db",
-          borderRadius: "8px",
-          textAlign: "left",
-          cursor: "pointer"
+          border: error ? "2px solid #ef4444" : undefined,
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span className="d-flex align-items-center gap-2">
           {selectedCountry && (
-            <img 
-              src={selectedCountry.flags.svg} 
+            <img
+              src={selectedCountry.flags.svg}
               alt={`${selectedCountry.name.common} flag`}
               style={{ width: "24px", height: "16px", objectFit: "cover", borderRadius: "2px" }}
             />
           )}
           {selectedCountry ? selectedCountry.name.common : "Select your country"}
         </span>
-        <ChevronDown size={20} />
+        <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>&#9662;</span>
       </button>
 
-      {error && (
-        <p className="text-sm" style={{ color: "#ef4444", marginTop: "4px" }}>{error}</p>
-      )}
+      {error && <div className="text-danger small mt-1">{error}</div>}
 
       {isOpen && (
-        <div 
-          className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-hidden"
-          style={{ border: "1px solid #e5e7eb" }}
+        <div
+          className="bg-white border rounded shadow"
+          style={{
+            position: "absolute",
+            zIndex: 1050,
+            width: "100%",
+            marginTop: "4px",
+            maxHeight: "280px",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <input
             type="text"
             placeholder="Search countries..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border-b"
-            style={{ border: "none", borderBottom: "1px solid #e5e7eb" }}
+            className="form-control rounded-0 border-0"
+            style={{ borderBottom: "1px solid #e5e7eb" }}
             autoFocus
           />
-          
-          <div className="overflow-y-auto max-h-48">
+
+          <div style={{ overflowY: "auto", flex: 1 }}>
             {loading ? (
-              <div className="px-4 py-2 text-gray-500">Loading countries...</div>
+              <div className="px-3 py-2 text-muted small">Loading countries...</div>
             ) : filteredCountries.length === 0 ? (
-              <div className="px-4 py-2 text-gray-500">No countries found</div>
+              <div className="px-3 py-2 text-muted small">No countries found</div>
             ) : (
-              filteredCountries.map(country => (
+              filteredCountries.map((country) => (
                 <button
                   key={country.cca3}
                   type="button"
@@ -99,15 +111,17 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
                     setIsOpen(false)
                     setSearch("")
                   }}
-                  className="w-full px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                  style={{ textAlign: "left" }}
+                  className="w-100 text-start border-0 bg-transparent d-flex align-items-center gap-2 px-3 py-2"
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                  <img 
-                    src={country.flags.svg} 
+                  <img
+                    src={country.flags.svg}
                     alt={`${country.name.common} flag`}
                     style={{ width: "24px", height: "16px", objectFit: "cover", borderRadius: "2px" }}
                   />
-                  <span>{country.name.common} ({country.cca2})</span>
+                  <span className="small">{country.name.common} ({country.cca2})</span>
                 </button>
               ))
             )}
