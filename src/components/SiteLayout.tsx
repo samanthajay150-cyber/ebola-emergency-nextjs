@@ -71,7 +71,7 @@ export function Header() {
 
 export function Footer() {
   return (
-    <footer style={{ backgroundColor: "#1f2937", color: "#e5e7eb" }} className="mt-auto">
+    <footer style={{ backgroundColor: "#1f2937", color: "#e5e7eb" }}>
       <div className="container py-5">
         <div className="row g-4">
           <div className="col-lg-4 col-md-6">
@@ -146,10 +146,10 @@ interface SiteLayoutProps {
 
 export function SiteLayout({ children }: SiteLayoutProps) {
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <>
       <Header />
-      <main className="flex-grow-1">{children}</main>
+      <main>{children}</main>
       <Footer />
-    </div>
+    </>
   )
 }

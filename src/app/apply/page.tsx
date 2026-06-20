@@ -175,7 +175,7 @@ export default function ApplyPage() {
     }
   }
 
-  const YesNo = ({ field, label }: { field: keyof FormData; label: string }) => (
+  const renderYesNo = (field: keyof FormData, label: string) => (
     <div className="mb-4">
       <label className="form-label fw-semibold">{label} *</label>
       <div className="btn-group w-100" role="group">
@@ -252,8 +252,8 @@ export default function ApplyPage() {
                 {step === 0 && (
                   <div>
                     <h2 className="h4 fw-bold mb-4"><i className="bi bi-clipboard-check me-2 text-danger"></i>Eligibility Check</h2>
-                    <YesNo field="readyToProceed" label="I confirm I am ready to proceed with this application" />
-                    <YesNo field="firstTimeApplicant" label="Is this your first time applying for emergency support?" />
+                    {renderYesNo("readyToProceed", "I confirm I am ready to proceed with this application")}
+                    {renderYesNo("firstTimeApplicant", "Is this your first time applying for emergency support?")}
                   </div>
                 )}
 

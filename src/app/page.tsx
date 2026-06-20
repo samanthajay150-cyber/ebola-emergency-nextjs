@@ -58,7 +58,7 @@ export default function HomePage() {
           </p>
           <div className="row g-4">
             <div className="col-md-4">
-              <div className="es-card">
+              <div className="es-card h-100">
                 <div className="icon" style={{ background: "var(--es-primary)" }}>
                   <i className="bi bi-hospital"></i>
                 </div>
@@ -67,7 +67,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="col-md-4">
-              <div className="es-card">
+              <div className="es-card h-100">
                 <div className="icon" style={{ background: "var(--es-accent)" }}>
                   <i className="bi bi-cash-coin"></i>
                 </div>
@@ -76,7 +76,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="col-md-4">
-              <div className="es-card">
+              <div className="es-card h-100">
                 <div className="icon" style={{ background: "var(--es-success)" }}>
                   <i className="bi bi-people"></i>
                 </div>
