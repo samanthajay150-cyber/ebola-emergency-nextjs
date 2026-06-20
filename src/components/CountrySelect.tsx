@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { getCachedCountries, type Country } from "@/lib/countries"
 
 interface CountrySelectProps {
-  value?: string
+  value?: string // iso2 code, e.g. "GH"
   onChange: (countryCode: string, countryName: string) => void
   error?: string
 }
@@ -17,13 +17,19 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    let cancelled = false
     async function loadCountries() {
       setLoading(true)
       const data = await getCachedCountries()
-      setCountries(data)
-      setLoading(false)
+      if (!cancelled) {
+        setCountries(data)
+        setLoading(false)
+      }
     }
     loadCountries()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Close dropdown when clicking outside
@@ -38,12 +44,13 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isOpen])
 
-  const filteredCountries = countries.filter((country) =>
-    country.name.common.toLowerCase().includes(search.toLowerCase()) ||
-    country.cca2.toLowerCase().includes(search.toLowerCase())
+  const filteredCountries = countries.filter(
+    (country) =>
+      country.name.toLowerCase().includes(search.toLowerCase()) ||
+      country.iso2.toLowerCase().includes(search.toLowerCase())
   )
 
-  const selectedCountry = countries.find((c) => c.cca2 === value)
+  const selectedCountry = countries.find((c) => c.iso2 === value)
 
   return (
     <div ref={wrapperRef} style={{ position: "relative" }}>
@@ -56,16 +63,17 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
         style={{
           border: error ? "2px solid #ef4444" : undefined,
         }}
+        aria-expanded={isOpen}
       >
         <span className="d-flex align-items-center gap-2">
           {selectedCountry && (
             <img
-              src={selectedCountry.flags.svg}
-              alt={`${selectedCountry.name.common} flag`}
+              src={selectedCountry.flag}
+              alt={`${selectedCountry.name} flag`}
               style={{ width: "24px", height: "16px", objectFit: "cover", borderRadius: "2px" }}
             />
           )}
-          {selectedCountry ? selectedCountry.name.common : "Select your country"}
+          {selectedCountry ? selectedCountry.name : "Select your country"}
         </span>
         <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>&#9662;</span>
       </button>
@@ -104,10 +112,10 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
             ) : (
               filteredCountries.map((country) => (
                 <button
-                  key={country.cca3}
+                  key={country.iso2}
                   type="button"
                   onClick={() => {
-                    onChange(country.cca2, country.name.common)
+                    onChange(country.iso2, country.name)
                     setIsOpen(false)
                     setSearch("")
                   }}
@@ -117,11 +125,13 @@ export function CountrySelect({ value, onChange, error }: CountrySelectProps) {
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   <img
-                    src={country.flags.svg}
-                    alt={`${country.name.common} flag`}
+                    src={country.flag}
+                    alt={`${country.name} flag`}
                     style={{ width: "24px", height: "16px", objectFit: "cover", borderRadius: "2px" }}
                   />
-                  <span className="small">{country.name.common} ({country.cca2})</span>
+                  <span className="small">
+                    {country.name} ({country.iso2})
+                  </span>
                 </button>
               ))
             )}

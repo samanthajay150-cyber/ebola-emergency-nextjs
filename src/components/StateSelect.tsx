@@ -1,34 +1,42 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { fetchStates, type CountryState } from "@/lib/countries"
+import { getCachedCountries } from "@/lib/countries"
 
 interface StateSelectProps {
-  countryCode?: string
+  countryCode?: string // iso2 code, e.g. "GH"
   value?: string
   onChange: (stateName: string) => void
   error?: string
 }
 
 export function StateSelect({ countryCode, value, onChange, error }: StateSelectProps) {
-  const [states, setStates] = useState<CountryState[]>([])
+  const [states, setStates] = useState<{ name: string; stateCode: string }[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
+  // Pull states from the same cached countries payload (no extra request).
   useEffect(() => {
+    let cancelled = false
     async function loadStates() {
       if (!countryCode) {
         setStates([])
         return
       }
       setLoading(true)
-      const data = await fetchStates(countryCode)
-      setStates(data)
-      setLoading(false)
+      const countries = await getCachedCountries()
+      const found = countries.find((c) => c.iso2 === countryCode)
+      if (!cancelled) {
+        setStates(found?.states ?? [])
+        setLoading(false)
+      }
     }
     loadStates()
+    return () => {
+      cancelled = true
+    }
   }, [countryCode])
 
   // Close dropdown when clicking outside
@@ -64,6 +72,7 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
           backgroundColor: countryCode ? undefined : "#f3f4f6",
           opacity: countryCode ? 1 : 0.6,
         }}
+        aria-expanded={isOpen}
       >
         <span>{selectedState ? selectedState.name : "Select state/region"}</span>
         <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>&#9662;</span>
@@ -100,12 +109,12 @@ export function StateSelect({ countryCode, value, onChange, error }: StateSelect
               <div className="px-3 py-2 text-muted small">Loading states...</div>
             ) : filteredStates.length === 0 ? (
               <div className="px-3 py-2 text-muted small">
-                {countryCode ? "No states found" : "Please select a country first"}
+                {countryCode ? "No states found for this country" : "Please select a country first"}
               </div>
             ) : (
               filteredStates.map((state) => (
                 <button
-                  key={state.stateCode}
+                  key={state.stateCode || state.name}
                   type="button"
                   onClick={() => {
                     onChange(state.name)
